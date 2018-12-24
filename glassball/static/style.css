@@ -16,6 +16,9 @@ header {
     height: 3rem;
 }
 
+.hidden {
+    display: none !important;
+}
 
 /* Selector "buttons" */
 

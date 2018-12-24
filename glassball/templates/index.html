@@ -12,8 +12,11 @@
         </header>
         <main class="panes">
             <div class="pane pane--list pane--filters">
+                <a class="selector filter selector--selected" data-filter-type="all">
+                    (All feeds)
+                </a>
                 {% for feed in feeds %}
-                    <a class="selector filter" data-filter="feed" data-feed="{{ feed.key }}">
+                    <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}">
                         {{ feed.title }}
                     </a>
                 {% endfor %}
