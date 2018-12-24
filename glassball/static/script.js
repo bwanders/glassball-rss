@@ -98,6 +98,10 @@ void function() {
     read by the user. Conceptually, any news item has a read/unread state, and
     these can be arbitrarily set.
 
+    Additionally, when new items appear, they should automatically take the
+    unread state. The sequence of item numbers is guaranteed to increase
+    monotonically, but not necessarily sequential.
+
     Because most read-unread churn occurs at the most-recent side of the items,
     the read info uses a compact representation. Unread handling is based on a
     data structure called read info. Read info consists of three fields:
