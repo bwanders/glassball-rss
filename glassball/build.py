@@ -14,7 +14,7 @@ def _db_datetime(value):
 def build_site(config, *, overwrite=False):
     env = jinja2.Environment(loader=jinja2.PackageLoader(__name__, 'templates'), autoescape=jinja2.select_autoescape(['html', 'xml']))
 
-    env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%SZ': value.strftime(format)
+    env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%S': value.strftime(format)
 
     if not config.build_directory.exists():
         print("Creating build directory '{}'...".format(config.build_directory))
