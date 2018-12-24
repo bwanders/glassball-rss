@@ -13,13 +13,16 @@
         <main class="panes">
             <div class="pane pane--list pane--filters">
                 <a class="selector filter selector--selected" data-filter-type="all">
-                    (All feeds)
+                    (all feeds)
                 </a>
                 {% for feed in feeds %}
                     <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}">
                         {{ feed.title }}
                     </a>
                 {% endfor %}
+                <a class="selector filter" data-filter-type="unread">
+                    (unread items)
+                </a>
             </div>
             <div class="pane pane--list pane--items">
                 {% for item in items %}
@@ -30,8 +33,9 @@
                                 {{ item.published|datetime('%H:%M') }}
                             </time>
                         </div>
-                        <div class="author">
-                            {{ item.author }}
+                        <div class="footer">
+                            <span class="author">{{ item.author }}</span>
+                            <button>unread</button>
                         </div>
                     </a>
                 {% endfor %}
