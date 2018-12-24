@@ -31,8 +31,8 @@ def update_feed(feed, conn):
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Initialize a glassball configuration')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration and database files')
+    args = argparse.ArgumentParser(description='Updates the feed item database')
+    args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
     options = args.parse_args()
 
     config = Configuration(options.name)

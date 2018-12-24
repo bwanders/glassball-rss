@@ -5,8 +5,8 @@ from .common import get_resource_string, open_database, Configuration
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Initialize a glassball configuration')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration and database files')
+    args = argparse.ArgumentParser(description='Initialize a glassball configuration and database')
+    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration file')
     options = args.parse_args()
 
     ini_file = pathlib.Path(options.name)

@@ -12,7 +12,16 @@ _res_manager = pkg_resources.ResourceManager()
 _res_provider = pkg_resources.get_provider(__name__)
 
 def get_resource_string(path):
-    return _res_provider.get_resource_string(_res_manager, path).decode('utf-8')
+    return pkg_resources.get_resource_string(__name__, path).decode('utf-8')
+
+
+def copy_resources(resource, target_path):
+    if pkg_resources.resource_isdir(__name__, resource):
+        for entry in pkg_resources.resource_listdir(__name__, resource):
+            copy_resources(entry, target_path / resource)
+    else:
+        with open(target_path / resource, 'wb') as f:
+            f.write(pkg_resources.resource_string(__name__, resource))
 
 
 def open_database(db_file):
@@ -37,6 +46,8 @@ class Configuration:
 
         self.database_file = self.configuration_file.with_name(self._config['global']['database'])
         self._database_conn = None
+
+        self.build_directory = self.configuration_file.with_name(self._config['global']['build'])
 
         self.feeds = []
         for section in self._config.sections():
