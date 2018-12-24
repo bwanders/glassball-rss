@@ -1,0 +1,13 @@
+html {
+    font-family: sans-serif;
+}
+
+
+.glassball-header .author,
+.glassball-header .published {
+    font-weight: bold;
+}
+
+.glassball-header {
+    border-bottom: 1px solid #ccc;
+}

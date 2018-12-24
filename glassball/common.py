@@ -1,4 +1,5 @@
 import configparser
+import os.path
 import pathlib
 import pkg_resources
 import sqlite3
@@ -18,9 +19,13 @@ def get_resource_string(path):
 def copy_resources(resource, target_path):
     if pkg_resources.resource_isdir(__name__, resource):
         for entry in pkg_resources.resource_listdir(__name__, resource):
-            copy_resources(entry, target_path / resource)
+            if not target_path.exists():
+                target_path.mkdir()
+            elif not target_path.is_dir():
+                raise GlassballError("Cannot create target path '{}' for copied resource".format(target_path))
+            copy_resources(os.path.join(resource, entry), target_path / entry)
     else:
-        with open(target_path / resource, 'wb') as f:
+        with open(target_path, 'wb') as f:
             f.write(pkg_resources.resource_string(__name__, resource))
 
 
