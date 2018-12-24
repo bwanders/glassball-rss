@@ -1,9 +1,7 @@
 import argparse
-import configparser
 import pathlib
-import sqlite3
 
-from . import get_resource_string
+from .common import get_resource_string, open_database, Configuration
 
 
 if __name__ == '__main__':
@@ -22,15 +20,12 @@ if __name__ == '__main__':
     else:
         print("Using existing configuration file '{}'...".format(ini_file))
 
-    config = configparser.ConfigParser()
-    config.read(ini_file, encoding='utf-8')
+    config = Configuration(ini_file)
 
-    db_file = ini_file.with_name(config['global']['database'])
-
-    if not db_file.exists():
-        print("Creating feed item database '{}'...".format(db_file))
-        with sqlite3.connect(db_file) as conn:
+    if not config.database_file.exists():
+        print("Creating feed item database '{}'...".format(config.database_file))
+        with open_database(config.database_file) as conn:
             schema_source = get_resource_string('schema.sql')
             conn.executescript(schema_source)
     else:
-        print("Using existing fedd item database '{}'...".format(db_file))
+        print("Using existing feed item database '{}'...".format(config.database_file))
