@@ -1,13 +1,39 @@
+/* Generic overrides */
+
 html {
     font-family: sans-serif;
+    margin: 1rem;
+    padding: 0;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Glassball header styling */
 
 .glassball-header .author,
 .glassball-header .published {
     font-weight: bold;
 }
 
+.glassball-header h1 {
+    margin: 0;
+    margin-bottom: 0.25rem;
+    font-size: 120%;
+}
+
 .glassball-header {
     border-bottom: 1px solid #ccc;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+
+/* "Play nice" tweaks */
+
+img {
+    max-width: 100%;
 }
