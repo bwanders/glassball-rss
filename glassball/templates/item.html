@@ -7,7 +7,7 @@
     </head>
     <body>
         <header class="glassball-header">
-            <h1>{{ item.title }}</h1>
+            <h1><a href="{{ item.link }}">{{ item.title }}</a></h1>
             <span class="byline">
                 by <span class="author">{{ item.author }}</span>
                 at <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">{{ item.published|datetime }}</time>

@@ -25,6 +25,11 @@ body {
     font-size: 120%;
 }
 
+.glassball-header h1 a {
+    color: inherit;
+    text-decoration: inherit;
+}
+
 .glassball-header {
     border-bottom: 1px solid #ccc;
     padding-bottom: 0.5rem;

@@ -11,6 +11,27 @@ def _db_datetime(value):
     return datetime.datetime(*map(int, value.replace(' ', '-').replace(':','-').split('-')))
 
 
+item_fields = {
+    'id': lambda x: x,
+    'feed': lambda x: x,
+    'guid': lambda x: x,
+    'published': _db_datetime,
+    'link': lambda x: x,
+    'title': lambda x: x,
+    'author': lambda x: x,
+    'content': lambda x: x,
+}
+
+
+def item_transform(item_row):
+    result = {}
+    available = item_row.keys()
+    for k, f in item_fields.items():
+        if k in available:
+            result[k] = f(item_row[k])
+    return result
+
+
 def build_site(config, *, overwrite=False):
     env = jinja2.Environment(loader=jinja2.PackageLoader(__name__, 'templates'), autoescape=jinja2.select_autoescape(['html', 'xml']))
 
@@ -33,15 +54,6 @@ def build_site(config, *, overwrite=False):
         items = conn.cursor()
         items.execute('SELECT id, feed, title, author, published FROM item ORDER BY published DESC')
 
-        def item_transform(item):
-            return {
-                'id': item['id'],
-                'feed': item['feed'],
-                'title': item['title'],
-                'author': item['author'],
-                'published': _db_datetime(item['published']),
-            }
-
         with open(config.build_directory / 'index.html', 'w', encoding='utf-8') as f:
             f.write(index_template.render(feeds=config.feeds, items=map(item_transform, items)))
 
@@ -52,10 +64,8 @@ def build_site(config, *, overwrite=False):
             item_file = config.build_directory / "{}.html".format(item['id'])
             if item_file.exists() and not overwrite:
                 continue
-            v = item_transform(item)
-            v['content'] = item['content']
             with open(item_file, 'w', encoding='utf-8') as f:
-                f.write(item_template.render(item=v))
+                f.write(item_template.render(item=item_transform(item)))
 
 
 
