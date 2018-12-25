@@ -1,6 +1,7 @@
 CREATE TABLE last_update (
     feed TEXT NOT NULL PRIMARY KEY,
-    updated TEXT NOT NULL
+    updated TEXT NOT NULL,
+    success BOOLEAN NOT NULL
 );
 
 CREATE TABLE item (

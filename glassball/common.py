@@ -66,11 +66,12 @@ def parse_update_interval(user_input):
 
 
 class Feed:
-    def __init__(self, key, title, url, update_interval):
+    def __init__(self, key, title, url, update_interval, accept_bozo):
         self.key = key
         self.title = title
         self.url = url
         self.update_interval = update_interval
+        self.accept_bozo = accept_bozo
 
 
 class Configuration:
@@ -93,7 +94,8 @@ class Configuration:
             title = self._config.get(section, 'title', fallback=key)
             url = self._config.get(section, 'url')
             update_interval = self._config.get(section, 'update interval', fallback='1 second')
-            self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval)))
+            accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
+            self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval), accept_bozo))
 
     def open_database(self):
         if not self.database_file.exists():
