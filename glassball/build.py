@@ -33,16 +33,16 @@ def build_site(config, *, overwrite=False):
 
     env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%S': value.strftime(format)
 
-    if not config.build_directory.exists():
-        print("Creating build directory '{}'...".format(config.build_directory))
-        config.build_directory.mkdir()
-    elif config.build_directory.is_dir():
-        print("Using existing build directory '{}'...".format(config.build_directory))
+    if not config.build_path.exists():
+        print("Creating build directory '{}'...".format(config.build_path))
+        config.build_path.mkdir()
+    elif config.build_path.is_dir():
+        print("Using existing build directory '{}'...".format(config.build_path))
     else:
-        raise GlassballError("Cannot use build directory '{}'".format(config.build_directory))
+        raise GlassballError("Cannot use build directory '{}'".format(config.build_path))
 
     # Copy static files over
-    copy_resources('static', config.build_directory / 'static')
+    copy_resources('static', config.build_path / 'static')
 
     with config.open_database() as conn:
         # First, we render out the index file
@@ -50,14 +50,14 @@ def build_site(config, *, overwrite=False):
         items = conn.cursor()
         items.execute('SELECT id, feed, title, author, published FROM item ORDER BY published DESC')
 
-        with open(config.build_directory / 'index.html', 'w', encoding='utf-8') as f:
+        with open(config.build_path / 'index.html', 'w', encoding='utf-8') as f:
             f.write(index_template.render(feeds=config.feeds, items=map(item_transform, items)))
 
         item_template = env.get_template('item.html')
         items = conn.cursor()
         items.execute('SELECT id, link, feed, title, author, published, content FROM item')
         for item in items:
-            item_file = config.build_directory / "{}.html".format(item['id'])
+            item_file = config.build_path / "{}.html".format(item['id'])
             if item_file.exists() and not overwrite:
                 continue
             with open(item_file, 'w', encoding='utf-8') as f:

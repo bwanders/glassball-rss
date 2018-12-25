@@ -84,7 +84,7 @@ class Configuration:
         self.database_file = self.configuration_file.with_name(self._config['global']['database'])
         self._database_conn = None
 
-        self.build_directory = self.configuration_file.with_name(self._config['global']['build'])
+        self.build_path = self.configuration_file.with_name(self._config['global']['build path'])
 
         self.feeds = []
         for section in self._config.sections():

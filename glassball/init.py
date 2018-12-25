@@ -15,7 +15,8 @@ if __name__ == '__main__':
         print("Creating template configuration file '{}'...".format(ini_file))
         with open(ini_file, 'w', encoding='utf-8') as config:
             expected_db_path = pathlib.Path(ini_file.stem + '.db')
-            config_source = get_resource_string('template-config.ini').format(database_file=str(expected_db_path))
+            expected_build_path = 'feedviewer'
+            config_source = get_resource_string('template-config.ini').format(database_file=str(expected_db_path), build_path=str(expected_build_path))
             config.write(config_source)
     else:
         print("Using existing configuration file '{}'...".format(ini_file))
