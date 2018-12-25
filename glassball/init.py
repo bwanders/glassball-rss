@@ -22,7 +22,7 @@ def command_init(options):
         print("Creating template configuration file '{}'...".format(ini_file))
         with open(ini_file, 'w', encoding='utf-8') as config:
             expected_db_path = pathlib.Path(ini_file.stem + '.db')
-            expected_build_path = 'feedviewer'
+            expected_build_path = 'build'
 
             import_file = None
             import_feeds = None
