@@ -21,10 +21,15 @@ def register_command(commands, common_args):
 
 
 def command_readopml(options):
+    config = readopml(options.opml)
+    config.write(sys.stdout)
+
+
+def readopml(opml_file):
     config = configparser.ConfigParser(interpolation=None)
     names = set()
 
-    tree = ElementTree.parse(options.opml)
+    tree = ElementTree.parse(opml_file)
     for node in tree.findall('.//outline'):
         url = node.attrib.get('xmlUrl')
         if not url:
@@ -41,5 +46,4 @@ def command_readopml(options):
         config['feed:' + name] = {}
         config['feed:' + name]['url'] = str(url)
         config['feed:' + name]['title'] = text
-
-    config.write(sys.stdout)
+    return config
