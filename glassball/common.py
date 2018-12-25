@@ -97,6 +97,12 @@ class Configuration:
             accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
             self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval), accept_bozo))
 
+    def get_feed(self, key):
+        for feed in self.feeds:
+            if feed.key == key:
+                return feed
+        return None
+
     def open_database(self):
         if not self.database_file.exists():
             raise GlassballError("Database file '{}' does not exists".format(self.database_file))
