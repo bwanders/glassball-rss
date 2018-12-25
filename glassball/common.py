@@ -93,7 +93,7 @@ class Configuration:
             key = section[5:]
             title = self._config.get(section, 'title', fallback=key)
             url = self._config.get(section, 'url')
-            update_interval = self._config.get(section, 'update interval', fallback='1 second')
+            update_interval = self._config.get(section, 'update interval', fallback='1 hour')
             accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
             self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval), accept_bozo))
 
