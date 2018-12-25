@@ -16,7 +16,7 @@
                     (all feeds)
                 </a>
                 {% for feed in feeds %}
-                    <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}">
+                    <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}" {% if last_update[feed] %}title="Last update {{ last_update[feed].updated|datetime }}"{% endif %}>
                         {{ feed.title }}
                     </a>
                 {% endfor %}

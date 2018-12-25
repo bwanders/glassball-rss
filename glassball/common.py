@@ -86,7 +86,7 @@ class Configuration:
 
         self.build_path = self.configuration_file.with_name(self._config['global']['build path'])
 
-        self.feeds = []
+        self._feeds = {}
         for section in self._config.sections():
             if not section.startswith('feed:'):
                 continue
@@ -95,13 +95,14 @@ class Configuration:
             url = self._config.get(section, 'url')
             update_interval = self._config.get(section, 'update interval', fallback='1 hour')
             accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
-            self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval), accept_bozo))
+            self._feeds[key] = Feed(key, title, url, parse_update_interval(update_interval), accept_bozo)
+
+    @property
+    def feeds(self):
+        return list(self._feeds.values())
 
     def get_feed(self, key):
-        for feed in self.feeds:
-            if feed.key == key:
-                return feed
-        return None
+        return self._feeds.get(key)
 
     def open_database(self):
         if not self.database_file.exists():

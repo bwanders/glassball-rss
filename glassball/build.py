@@ -50,8 +50,12 @@ def build_site(config, *, overwrite=False):
         items = conn.cursor()
         items.execute('SELECT id, feed, title, author, published FROM item ORDER BY published DESC')
 
+        c = conn.cursor()
+        c.execute('SELECT feed, updated, success FROM last_update')
+        last_update = {config.get_feed(feed): {'updated': db_datetime(updated), 'success': success} for feed, updated, success in c.fetchall()}
+
         with open(config.build_path / 'index.html', 'w', encoding='utf-8') as f:
-            f.write(index_template.render(feeds=config.feeds, items=map(item_transform, items)))
+            f.write(index_template.render(feeds=config.feeds, last_update=last_update, items=map(item_transform, items)))
 
         item_template = env.get_template('item.html')
         items = conn.cursor()
