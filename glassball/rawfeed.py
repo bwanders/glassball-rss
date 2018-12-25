@@ -24,11 +24,13 @@ def command_rawfeed(options):
     if not options.url.startswith('http'):
         # If we are given a config, we can try to look up a non-URL parameter
         # against the feeds in the config
-        if Configuration.loadable(options.config):
+        if Configuration.exists(options.config):
             config = Configuration(options.config)
             feed = config.get_feed(options.url)
             if feed:
                 options.url = feed.url
+            else:
+                raise CommandError("Cannot translate name {!r} to a feed URL with {!r}".format(options.url, options.config))
         else:
             raise CommandError("Given url {!r} does not seem to be a retrievable URL".format(options.url))
 

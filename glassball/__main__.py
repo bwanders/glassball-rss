@@ -1,6 +1,6 @@
 import argparse
 
-from glassball.common import CommandError
+from glassball.common import GlassballError
 
 import glassball.init
 import glassball.list
@@ -40,5 +40,5 @@ if __name__ == '__main__':
 
     try:
         command_func(options)
-    except CommandError as e:
+    except GlassballError as e:
         args.error(str(e))

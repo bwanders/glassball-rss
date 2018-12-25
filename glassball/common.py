@@ -53,18 +53,18 @@ def parse_update_interval(user_input):
 
     parts = user_input.replace(',',' ').split()
     if len(parts) % 2 != 0:
-        raise GlassballError("Cannot parse duration {!r}".format(user_input))
+        raise ValueError("Cannot parse duration {!r}".format(user_input))
 
     pairs = iter(parts)
     for amount, unit in zip(pairs, pairs):
         user_unit = unit
         unit = _normalize_units.get(unit, unit)
         if unit not in _plural_units:
-            raise GlassballError("Unkown duration unit {!r} in {!r}".format(user_unit, user_input))
+            raise ValueError("Unkown duration unit {!r} in {!r}".format(user_unit, user_input))
         try:
             arguments[unit] = int(amount)
         except ValueError as e:
-            raise GlassballError("Cannot convert amount {!r} to a number for the {!r} part of {!r}".format(amount, user_unit, user_input))
+            raise ValueError("Cannot convert amount {!r} to a number for the {!r} part of {!r}".format(amount, user_unit, user_input)) from e
 
     return datetime.timedelta(**arguments)
 
@@ -82,39 +82,58 @@ class Configuration:
     def __init__(self, ini_file):
         self.configuration_file = pathlib.Path(ini_file)
 
+        if not self.configuration_file.exists():
+            raise GlassballError("Configuration file {!r} does not exists".format(str(self.configuration_file)))
+
         self._config = configparser.ConfigParser()
-        loaded = self._config.read([self.configuration_file], encoding='utf-8')
+        try:
+            self._config.read([str(self.configuration_file)], encoding='utf-8')
+        except configparser.Error as e:
+            raise GlassballError(str(e)) from e
 
-        self.database_file = self.configuration_file.with_name(self._config['global']['database'])
-        self._database_conn = None
-
-        self.build_path = self.configuration_file.with_name(self._config['global']['build path'])
+        try:
+            self.database_file = self.configuration_file.with_name(self._config.get('global', 'database'))
+            self._database_conn = None
+        except configparser.NoOptionError as e:
+            raise GlassballError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
 
         self._feeds = {}
         for section in self._config.sections():
             if not section.startswith('feed:'):
                 continue
             key = section[5:]
-            title = self._config.get(section, 'title', fallback=key)
-            url = self._config.get(section, 'url')
-            update_interval = self._config.get(section, 'update interval', fallback='1 hour')
-            accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
-            self._feeds[key] = Feed(key, title, url, parse_update_interval(update_interval), accept_bozo)
+            try:
+                title = self._config.get(section, 'title', fallback=key)
+                url = self._config.get(section, 'url')
+                update_interval = self._config.get(section, 'update interval', fallback='1 hour')
+                accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
+            except configparser.Error as e:
+                raise GlassballError("Misconfiguration feed in {!r}: {}".format(str(self.configuration_file), e)) from e
+            try:
+                update_interval = parse_update_interval(update_interval)
+            except ValueError as e:
+                raise GlassballError("Cannot understand update interval {!r} for feed {!r} in {!r}".format(update_interval, section, str(self.configuration_file)))
+            self._feeds[key] = Feed(key, title, url, update_interval, accept_bozo)
 
     @classmethod
-    def loadable(cls, ini_file):
-        # Brutally check if a configuration file can be loaded by actually
-        # loading it
-        return bool(configparser.ConfigParser().read([ini_file], encoding='utf-8'))
+    def exists(cls, ini_file):
+        return pathlib.Path(ini_file).exists()
 
     @property
     def feeds(self):
         return list(self._feeds.values())
+
+    @property
+    def build_path(self):
+        try:
+            return self.configuration_file.with_name(self._config['global']['build path'])
+        except KeyError:
+            raise GlassballError("Configuration file {!r} does not list a build path".format(str(self.configuration_file)))
 
     def get_feed(self, key):
         return self._feeds.get(key)
 
     def open_database(self):
         if not self.database_file.exists():
-            raise GlassballError("Database file '{}' does not exists".format(self.database_file))
+            raise GlassballError("Database file '{}' does not exists".format(str(self.database_file)))
         return open_database(self.database_file)
