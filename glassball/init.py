@@ -31,8 +31,8 @@ def command_init(options):
                 readopml(options.import_opml).write(buf)
                 imported_feeds = buf.getvalue()
 
-            config_template = env.get_template('feeds.ini')
             config.write(config_template.render(database_file=str(expected_db_path), build_path=str(expected_build_path), opml_file=getattr(options, 'import_opml', None), imported_feeds=imported_feeds))
+            config_template = env.get_template('configuration.ini')
     else:
         print("Using existing configuration file '{}'...".format(ini_file))
 
