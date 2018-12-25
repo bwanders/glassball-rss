@@ -49,10 +49,19 @@ def update_feed(feed, conn, now=None, force_update=False):
 
         # Update feed items
         for entry in feed_data.entries:
-            # Check entry for the minimum required keys
-            for key in ['id', 'updated_parsed']:
-                if key not in entry:
-                    raise UpdateError(feed, "Entry is missing {!r} value".format(key))
+            # Make sure we have an actual entry identifier. If we have no such
+            # identifier we can not handle the entry.
+            if 'id' not in entry:
+                raise UpdateError(feed, "Entry is missing identifier")
+
+            # First, check if we have the `published` or `updated` key,
+            # prefering to use `published`
+            selected_time_key = None
+            for selected_time_key in ['published_parsed', 'updated_parsed']:
+                if selected_time_key in entry:
+                    break
+            else:
+                raise UpdateError(feed, "Entry is missing both 'published' and 'updated' times")
 
             # Check the entry for existince in database
             c.execute("SELECT EXISTS (SELECT * FROM item WHERE guid = ?)", (entry.id,))
@@ -67,7 +76,7 @@ def update_feed(feed, conn, now=None, force_update=False):
             data = {
                 'feed': feed.key,
                 'guid': entry.id,
-                'published': calendar.timegm(entry.updated_parsed),
+                'published': calendar.timegm(entry.get(selected_time_key)),
                 'link': entry.get('link'),
                 'title': entry.get('title'),
                 'author': entry.get('author'),
