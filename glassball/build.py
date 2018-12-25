@@ -4,18 +4,14 @@ import pathlib
 
 import jinja2
 
-from .common import copy_resources, Configuration, GlassballError
-
-
-def _db_datetime(value):
-    return datetime.datetime(*map(int, value.replace(' ', '-').replace(':','-').split('-')))
+from .common import copy_resources, Configuration, GlassballError, db_datetime
 
 
 item_fields = {
     'id': lambda x: x,
     'feed': lambda x: x,
     'guid': lambda x: x,
-    'published': _db_datetime,
+    'published': db_datetime,
     'link': lambda x: x,
     'title': lambda x: x,
     'author': lambda x: x,

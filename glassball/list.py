@@ -1,11 +1,12 @@
 import argparse
 
-from .common import Configuration
+from .common import Configuration, db_datetime
 
 
 if __name__ == '__main__':
     args = argparse.ArgumentParser(description='Lists the feeds and feed items')
     args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
+    args.add_argument('-a', '--articles', action='store_true', help='Lists articles as well')
     options = args.parse_args()
 
     config = Configuration(options.name)
@@ -13,8 +14,14 @@ if __name__ == '__main__':
     with config.open_database() as conn:
         c = conn.cursor()
         for feed in config.feeds:
-            print("{} <{}>".format(feed.title, feed.url))
-            c.execute("SELECT title, author, published, link FROM item WHERE feed = ? ORDER BY published DESC", (feed.key,))
-            feed_items = c.fetchall()
-            for item in feed_items:
-                print("  {title} <{link}>\n    by {author}, at {published}".format(**item))
+            c.execute("SELECT updated FROM last_update WHERE feed = ?", (feed.key,))
+            row = c.fetchone()
+            last_update = db_datetime(row['updated']) if row else None
+
+            print("{} <{}>  (last update {})".format(feed.title, feed.url, last_update or 'unknown'))
+
+            if options.articles:
+                c.execute("SELECT title, author, published, link FROM item WHERE feed = ? ORDER BY published DESC", (feed.key,))
+                feed_items = c.fetchall()
+                for item in feed_items:
+                    print("  {title} <{link}>\n    by {author}, at {published}".format(**item))

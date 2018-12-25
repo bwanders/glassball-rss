@@ -1,4 +1,5 @@
 import configparser
+import datetime
 import os.path
 import pathlib
 import pkg_resources
@@ -13,7 +14,7 @@ _res_manager = pkg_resources.ResourceManager()
 _res_provider = pkg_resources.get_provider(__name__)
 
 def get_resource_string(path):
-    return pkg_resources.get_resource_string(__name__, path).decode('utf-8')
+    return _res_provider.get_resource_string(_res_manager, path).decode('utf-8')
 
 
 def copy_resources(resource, target_path):
@@ -35,11 +36,41 @@ def open_database(db_file):
     return conn
 
 
+def db_datetime(value):
+    return datetime.datetime(*map(int, value.replace(' ', '-').replace(':','-').split('-')))
+
+
+_units = ['week', 'day', 'hour', 'minute', 'second']
+_plural_units = [u + 's' for u in _units]
+_normalize_units = {k: v for k, v in zip(_units, _plural_units)}
+
+def parse_update_interval(user_input):
+    arguments = {}
+
+    parts = user_input.replace(',',' ').split()
+    if len(parts) % 2 != 0:
+        raise GlassballError("Cannot parse duration {!r}".format(user_input))
+
+    pairs = iter(parts)
+    for amount, unit in zip(pairs, pairs):
+        user_unit = unit
+        unit = _normalize_units.get(unit, unit)
+        if unit not in _plural_units:
+            raise GlassballError("Unkown duration unit {!r} in {!r}".format(user_unit, user_input))
+        try:
+            arguments[unit] = int(amount)
+        except ValueError as e:
+            raise GlassballError("Cannot convert amount {!r} to a number for the {!r} part of {!r}".format(amount, user_unit, user_input))
+
+    return datetime.timedelta(**arguments)
+
+
 class Feed:
-    def __init__(self, key, title, url):
+    def __init__(self, key, title, url, update_interval):
         self.key = key
         self.title = title
         self.url = url
+        self.update_interval = update_interval
 
 
 class Configuration:
@@ -61,7 +92,8 @@ class Configuration:
             key = section[5:]
             title = self._config.get(section, 'title', fallback=key)
             url = self._config.get(section, 'url')
-            self.feeds.append(Feed(key, title, url))
+            update_interval = self._config.get(section, 'update interval', fallback='1 second')
+            self.feeds.append(Feed(key, title, url, parse_update_interval(update_interval)))
 
     def open_database(self):
         if not self.database_file.exists():
