@@ -126,9 +126,9 @@ class Configuration:
     @property
     def build_path(self):
         try:
-            return self.configuration_file.with_name(self._config['global']['build path'])
-        except KeyError:
-            raise GlassballError("Configuration file {!r} does not list a build path".format(str(self.configuration_file)))
+            return self.configuration_file.with_name(self._config.get('global', 'build path'))
+        except configparser.NoOptionError as e:
+            raise GlassballError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
 
     def get_feed(self, key):
         return self._feeds.get(key)
