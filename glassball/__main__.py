@@ -19,11 +19,15 @@ command_modules = [
 
 
 if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='RSS/Atom feed tracker and static viewer')
-    commands = args.add_subparsers()
+    common_args = argparse.ArgumentParser(add_help=False)
+    common_group = common_args.add_argument_group('common arguments')
+    common_group.add_argument('-c', '--config', default='feeds.ini', help='The configuration file with which to work')
 
+    args = argparse.ArgumentParser(description='RSS/Atom feed tracker and static viewer')
+
+    commands = args.add_subparsers()
     for mod in command_modules:
-        mod.register_command(commands)
+        mod.register_command(commands, common_args)
 
     options = args.parse_args()
 

@@ -14,7 +14,7 @@ def slugify(s):
     return s
 
 
-def register_command(commands):
+def register_command(commands, common_args):
     args = commands.add_parser('readopml', help='Read an OPML file and output a copy-pasteable config')
     args.add_argument('opml', type=argparse.FileType(), help='The OPML file')
     args.set_defaults(command_func=command_readopml)

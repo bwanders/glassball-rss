@@ -7,15 +7,14 @@ import jinja2
 from .common import copy_resources, Configuration, GlassballError, db_datetime
 
 
-def register_command(commands):
-    args = commands.add_parser('build', help='Builds a set of static HTML files that can be used to view the feed items')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration file')
+def register_command(commands, common_args):
+    args = commands.add_parser('build', help='Builds a set of static HTML files that can be used to view the feed items', parents=[common_args])
     args.add_argument('-f', '--force', action='store_true', help='Force update of existing files by overwriting them')
     args.set_defaults(command_func=command_build)
 
 
 def command_build(options):
-    config = Configuration(options.name)
+    config = Configuration(options.config)
     build_site(config, overwrite=options.force)
 
 

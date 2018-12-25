@@ -1,16 +1,16 @@
 import argparse
 import pprint
 import textwrap
+import pathlib
 
 import feedparser
 
 from .common import Configuration
 
 
-def register_command(commands):
-    args = commands.add_parser('raw-feed', help='Retrieves and dumps a raw feed')
+def register_command(commands, common_args):
+    args = commands.add_parser('raw-feed', help='Retrieves and dumps a raw feed', parents=[common_args])
     args.add_argument('url', help='The feed URL')
-    args.add_argument('-c', '--config', help='Optional configuration file to use to resolve keys to feed URLs')
     args.add_argument('-a', '--all', action='store_true', help='Output all entry information as well as the feed information')
     args.set_defaults(command_func=command_rawfeed)
 
@@ -22,7 +22,7 @@ def indent_pprint(thing, prefix='    '):
 def command_rawfeed(options):
     # If we are given a config, we can try to look up a non-URL parameter
     # against the feeds in the config
-    if options.config:
+    if pathlib.Path(options.config).exists():
         config = Configuration(options.config)
         if not options.url.startswith('http'):
             feed = config.get_feed(options.url)

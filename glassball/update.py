@@ -17,15 +17,14 @@ class UpdateError(GlassballError):
         return "Feed {!r}: ".format(self.feed.key) + super().__str__()
 
 
-def register_command(commands):
-    args = commands.add_parser('update', help='Run the update process for all configured feeds')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
+def register_command(commands, common_args):
+    args = commands.add_parser('update', help='Run the update process for all configured feeds', parents=[common_args])
     args.add_argument('-f', '--force', action='store_true', help='Force updates regardless of update intervals for the feeds')
     args.set_defaults(command_func=command_update)
 
 
 def command_update(options):
-    config = Configuration(options.name)
+    config = Configuration(options.config)
 
     conn = config.open_database()
 
