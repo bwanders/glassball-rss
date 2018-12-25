@@ -1,11 +1,10 @@
 import argparse
 import pprint
 import textwrap
-import pathlib
 
 import feedparser
 
-from .common import Configuration
+from .common import Configuration, CommandError
 
 
 def register_command(commands, common_args):
@@ -20,15 +19,20 @@ def indent_pprint(thing, prefix='    '):
 
 
 def command_rawfeed(options):
-    # If we are given a config, we can try to look up a non-URL parameter
-    # against the feeds in the config
-    if pathlib.Path(options.config).exists():
-        config = Configuration(options.config)
-        if not options.url.startswith('http'):
+    # This is completely opinionated: anything not starting with `http` is not
+    # retrievable...
+    if not options.url.startswith('http'):
+        # If we are given a config, we can try to look up a non-URL parameter
+        # against the feeds in the config
+        if Configuration.loadable(options.config):
+            config = Configuration(options.config)
             feed = config.get_feed(options.url)
             if feed:
                 options.url = feed.url
+        else:
+            raise CommandError("Given url {!r} does not seem to be a retrievable URL".format(options.url))
 
+    # Proceed to retrieve the feed
     feed = feedparser.parse(options.url)
 
     display_keys = set(feed.keys()) - {'entries'}

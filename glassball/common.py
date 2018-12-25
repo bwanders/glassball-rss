@@ -10,6 +10,10 @@ class GlassballError(Exception):
     pass
 
 
+class CommandError(GlassballError):
+    pass
+
+
 _res_manager = pkg_resources.ResourceManager()
 _res_provider = pkg_resources.get_provider(__name__)
 
@@ -79,7 +83,7 @@ class Configuration:
         self.configuration_file = pathlib.Path(ini_file)
 
         self._config = configparser.ConfigParser()
-        self._config.read(self.configuration_file, encoding='utf-8')
+        loaded = self._config.read([self.configuration_file], encoding='utf-8')
 
         self.database_file = self.configuration_file.with_name(self._config['global']['database'])
         self._database_conn = None
@@ -96,6 +100,12 @@ class Configuration:
             update_interval = self._config.get(section, 'update interval', fallback='1 hour')
             accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
             self._feeds[key] = Feed(key, title, url, parse_update_interval(update_interval), accept_bozo)
+
+    @classmethod
+    def loadable(cls, ini_file):
+        # Brutally check if a configuration file can be loaded by actually
+        # loading it
+        return bool(configparser.ConfigParser().read([ini_file], encoding='utf-8'))
 
     @property
     def feeds(self):

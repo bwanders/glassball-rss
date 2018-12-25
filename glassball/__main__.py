@@ -1,5 +1,7 @@
 import argparse
 
+from glassball.common import CommandError
+
 import glassball.init
 import glassball.list
 import glassball.update
@@ -36,4 +38,7 @@ if __name__ == '__main__':
         args.print_help()
         args.exit(2)
 
-    command_func(options)
+    try:
+        command_func(options)
+    except CommandError as e:
+        args.error(str(e))

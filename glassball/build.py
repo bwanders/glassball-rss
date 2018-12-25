@@ -4,7 +4,7 @@ import pathlib
 
 import jinja2
 
-from .common import copy_resources, Configuration, GlassballError, db_datetime
+from .common import copy_resources, Configuration, CommandError, db_datetime
 
 
 def register_command(commands, common_args):
@@ -50,7 +50,7 @@ def build_site(config, *, overwrite=False):
     elif config.build_path.is_dir():
         print("Using existing build directory '{}'...".format(config.build_path))
     else:
-        raise GlassballError("Cannot use build directory '{}'".format(config.build_path))
+        raise CommandError("Cannot use build directory '{}'".format(config.build_path))
 
     # Copy static files over
     copy_resources('static', config.build_path / 'static')
