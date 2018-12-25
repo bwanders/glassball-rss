@@ -9,7 +9,7 @@ from .readopml import read_opml
 
 def register_command(commands, common_args):
     args = commands.add_parser('init', help='Intialize a glassball configuration and database', parents=[common_args])
-    args.add_argument('--import-opml', help='An optional OPML-file to import into the created configuration')
+    args.add_argument('--import', dest='import_opml', help='An optional OPML-file to import into the created configuration')
     args.set_defaults(command_func=command_init)
 
 
