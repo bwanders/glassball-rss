@@ -2,4 +2,6 @@ env/
 __pycache__/
 *.local.*
 
-feeds.db
+# Ignore default configuration files
+/feeds.db
+/feeds.ini
