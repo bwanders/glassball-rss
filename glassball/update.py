@@ -14,7 +14,24 @@ class UpdateError(GlassballError):
         self.feed = feed
 
     def __str__(self):
-        return "Feed {!r}: ".format(feed.key) + super().__str__()
+        return "Feed {!r}: ".format(self.feed.key) + super().__str__()
+
+
+def register_command(commands):
+    args = commands.add_parser('update', help='Run the update process for all configured feeds')
+    args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
+    args.add_argument('-f', '--force', action='store_true', help='Force updates regardless of update intervals for the feeds')
+    args.set_defaults(command_func=command_update)
+
+
+def command_update(options):
+    config = Configuration(options.name)
+
+    conn = config.open_database()
+
+    for feed in config.feeds:
+        with conn:
+            update_feed(feed, conn, force_update=options.force)
 
 
 def update_feed(feed, conn, now=None, force_update=False):
@@ -97,18 +114,3 @@ def update_feed(feed, conn, now=None, force_update=False):
         'updated': now.replace(tzinfo=datetime.timezone.utc).timestamp(),
         'success': success
     })
-
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Updates the feed item database')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
-    args.add_argument('-f', '--force', action='store_true', help='Force updates regardless of update intervals for the feeds')
-    options = args.parse_args()
-
-    config = Configuration(options.name)
-
-    conn = config.open_database()
-
-    for feed in config.feeds:
-        with conn:
-            update_feed(feed, conn, force_update=options.force)

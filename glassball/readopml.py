@@ -14,11 +14,13 @@ def slugify(s):
     return s
 
 
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Read an OPML file and output a copy-pasteable config')
+def register_command(commands):
+    args = commands.add_parser('readopml', help='Read an OPML file and output a copy-pasteable config')
     args.add_argument('opml', type=argparse.FileType(), help='The OPML file')
-    options = args.parse_args()
+    args.set_defaults(command_func=command_readopml)
 
+
+def command_readopml(options):
     config = configparser.ConfigParser(interpolation=None)
     names = set()
 

@@ -2,13 +2,14 @@ import argparse
 
 from .common import Configuration, db_datetime
 
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Lists the feeds and feed items')
+def register_command(commands):
+    args = commands.add_parser('list', help='Lists feed information and feed items')
     args.add_argument('name', nargs='?', default='feeds.ini', help='The configuration file')
     args.add_argument('-a', '--articles', action='store_true', help='Lists articles as well')
-    options = args.parse_args()
+    args.set_defaults(command_func=command_list)
 
+
+def command_list(options):
     config = Configuration(options.name)
 
     with config.open_database() as conn:

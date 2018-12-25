@@ -4,11 +4,13 @@ import pathlib
 from .common import get_resource_string, open_database, Configuration
 
 
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Initialize a glassball configuration and database')
+def register_command(commands):
+    args = commands.add_parser('init', help='Intialize a glassball configuration and database')
     args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration file')
-    options = args.parse_args()
+    args.set_defaults(command_func=command_init)
 
+
+def command_init(options):
     ini_file = pathlib.Path(options.name)
 
     if not ini_file.exists():

@@ -7,6 +7,18 @@ import jinja2
 from .common import copy_resources, Configuration, GlassballError, db_datetime
 
 
+def register_command(commands):
+    args = commands.add_parser('build', help='Builds a set of static HTML files that can be used to view the feed items')
+    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration file')
+    args.add_argument('-f', '--force', action='store_true', help='Force update of existing files by overwriting them')
+    args.set_defaults(command_func=command_build)
+
+
+def command_build(options):
+    config = Configuration(options.name)
+    build_site(config, overwrite=options.force)
+
+
 item_fields = {
     'id': lambda x: x,
     'feed': lambda x: x,
@@ -66,15 +78,3 @@ def build_site(config, *, overwrite=False):
                 continue
             with open(item_file, 'w', encoding='utf-8') as f:
                 f.write(item_template.render(item=item_transform(item)))
-
-
-
-if __name__ == '__main__':
-    args = argparse.ArgumentParser(description='Builds a set of static HTML files that can be used to view the feed items')
-    args.add_argument('name', nargs='?', default='feeds.ini', help='The name of the configuration file')
-    args.add_argument('-f', '--force', action='store_true', help='Force update of existing files by overwriting them')
-    options = args.parse_args()
-
-    config = Configuration(options.name)
-
-    build_site(config, overwrite=options.force)
