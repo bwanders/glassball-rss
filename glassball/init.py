@@ -4,7 +4,7 @@ import pathlib
 import jinja2
 
 from .common import get_resource_string, open_database, Configuration
-from .readopml import readopml
+from .readopml import read_opml
 
 
 def register_command(commands, common_args):
@@ -24,15 +24,14 @@ def command_init(options):
             expected_db_path = pathlib.Path(ini_file.stem + '.db')
             expected_build_path = 'feedviewer'
 
-            imported_feeds = None
+            import_file = None
+            import_feeds = None
             if getattr(options, 'import_opml', None):
-                from io import StringIO
-                buf = StringIO()
-                readopml(options.import_opml).write(buf)
-                imported_feeds = buf.getvalue()
+                import_file = options.import_opml
+                import_feeds = read_opml(options.import_opml)
 
-            config.write(config_template.render(database_file=str(expected_db_path), build_path=str(expected_build_path), opml_file=getattr(options, 'import_opml', None), imported_feeds=imported_feeds))
             config_template = env.get_template('configuration.ini')
+            config.write(config_template.render(database_file=str(expected_db_path), build_path=str(expected_build_path), import_file=import_file, import_feeds=import_feeds))
     else:
         print("Using existing configuration file '{}'...".format(ini_file))
 

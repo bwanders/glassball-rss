@@ -21,12 +21,17 @@ def register_command(commands, common_args):
 
 
 def command_readopml(options):
-    config = readopml(options.opml)
+    feeds = read_opml(options.opml)
+    config = configparser.ConfigParser(interpolation=None)
+    for feed, settings in feeds.items():
+        config[feed] = {}
+        config[feed]['url'] = settings['url']
+        config[feed]['title'] = settings['title']
     config.write(sys.stdout)
 
 
-def readopml(opml_file):
-    config = configparser.ConfigParser(interpolation=None)
+def read_opml(opml_file):
+    result = {}
     names = set()
 
     tree = ElementTree.parse(opml_file)
@@ -43,7 +48,8 @@ def readopml(opml_file):
             i += 1
             name = "{}:{}".format(candidate_name, i)
         names.add(name)
-        config['feed:' + name] = {}
-        config['feed:' + name]['url'] = str(url)
-        config['feed:' + name]['title'] = text
-    return config
+        key = 'feed:' + name
+        result[key] = {}
+        result[key]['url'] = str(url)
+        result[key]['title'] = text
+    return result
