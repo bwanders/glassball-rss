@@ -85,7 +85,7 @@ class Configuration:
         if not self.configuration_file.exists():
             raise GlassballError("Configuration file {!r} does not exists".format(str(self.configuration_file)))
 
-        self._config = configparser.ConfigParser()
+        self._config = configparser.ConfigParser(interpolation=None)
         try:
             self._config.read([str(self.configuration_file)], encoding='utf-8')
         except configparser.Error as e:
