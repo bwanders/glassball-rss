@@ -43,6 +43,9 @@ if __name__ == '__main__':
         args.print_help()
         args.exit(2)
 
+    # We do this dance with the exit stack to make sure that we close the log
+    # file at the appropriate time. The `console_log_handler` is just here for
+    # symmetry.
     with contextlib.ExitStack() as stack:
         if not options.quiet:
             stack.enter_context(console_log_handler())
