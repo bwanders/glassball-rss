@@ -74,8 +74,12 @@ def build_site(config, *, overwrite=False):
         items = conn.cursor()
         items.execute('SELECT id, link, feed, title, author, published, content FROM item')
         for item in items:
+            feed = config.get_feed(item['feed'])
             item_file = config.build_path / "{}.html".format(item['id'])
             if item_file.exists() and not overwrite:
                 continue
+            injected_styling = None
+            if feed and feed.inject_style_file:
+                injected_styling = config.relative_path(feed.inject_style_file).read_text(encoding='utf-8')
             with open(item_file, 'w', encoding='utf-8') as f:
-                f.write(item_template.render(item=item_transform(item)))
+                f.write(item_template.render(item=item_transform(item), injected_styling=injected_styling))

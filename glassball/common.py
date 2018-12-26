@@ -87,12 +87,13 @@ def logging_config(options, config):
 
 
 class Feed:
-    def __init__(self, key, title, url, update_interval, accept_bozo):
+    def __init__(self, key, title, url, update_interval, accept_bozo, inject_style_file):
         self.key = key
         self.title = title
         self.url = url
         self.update_interval = update_interval
         self.accept_bozo = accept_bozo
+        self.inject_style_file = inject_style_file
 
 
 class Configuration:
@@ -108,11 +109,7 @@ class Configuration:
         except configparser.Error as e:
             raise ConfigurationError(str(e)) from e
 
-        try:
-            self.database_file = self.configuration_file.with_name(self._config.get('global', 'database'))
-            self._database_conn = None
-        except configparser.NoOptionError as e:
-            raise ConfigurationError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
+        self._database_conn = None
 
         self._feeds = {}
         for section in self._config.sections():
@@ -124,13 +121,14 @@ class Configuration:
                 url = self._config.get(section, 'url')
                 update_interval = self._config.get(section, 'update interval', fallback='1 hour')
                 accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
+                inject_style_file = self._config.get(section, 'style file', fallback=None)
             except configparser.Error as e:
                 raise ConfigurationError("Misconfiguration feed in {!r}: {}".format(str(self.configuration_file), e)) from e
             try:
                 update_interval = parse_update_interval(update_interval)
             except ValueError as e:
                 raise ConfigurationError("Cannot understand update interval {!r} for feed {!r} in {!r}".format(update_interval, section, str(self.configuration_file)))
-            self._feeds[key] = Feed(key, title, url, update_interval, accept_bozo)
+            self._feeds[key] = Feed(key, title, url, update_interval, accept_bozo, inject_style_file)
 
     @classmethod
     def exists(cls, ini_file):
@@ -143,14 +141,24 @@ class Configuration:
     @property
     def build_path(self):
         try:
-            return self.configuration_file.with_name(self._config.get('global', 'build path'))
+            return self.relative_path(self._config.get('global', 'build path'))
         except configparser.NoOptionError as e:
             raise ConfigurationError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
 
+    @property
+    def database_file(self):
+        try:
+            return self.relative_path(self._config.get('global', 'database'))
+        except configparser.NoOptionError as e:
+            raise ConfigurationError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
+
     def get_feed(self, key):
-        return self._feeds.get(key)
+        return self._feeds.get(key, None)
 
     def open_database(self):
         if not self.database_file.exists():
             raise ConfigurationError("Database file '{}' does not exists".format(str(self.database_file)))
         return open_database(self.database_file)
+
+    def relative_path(self, path):
+        return self.configuration_file.parent / path

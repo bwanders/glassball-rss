@@ -5,9 +5,9 @@ Glassball
 Global Configuration
 --------------------
 
-`database`
+`database` (path)
 
-`build path`
+`build path` (path)
 
 
 
@@ -22,8 +22,12 @@ Each feed has its own feed section.
     update interval = 1 hour
 
 
-`url`
+`url` (url)
 
-`title`
+`title` (string)
 
-`update interval`
+`update interval` (week, day, hour, minute, second; ex. `1 day 6 hours`)
+
+`accept bozo data` (boolean)
+
+`style file` (path)

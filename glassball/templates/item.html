@@ -4,6 +4,11 @@
         <style>
             {% include 'item.css' %}
         </style>
+        {% if injected_styling %}
+        <style>
+            {{ injected_styling }}
+        </style>
+        {% endif %}
         <meta charset="utf-8">
         <base target="_blank">
     </head>

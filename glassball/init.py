@@ -10,7 +10,7 @@ from .opmlimport import read_opml
 
 def register_command(commands, common_args):
     args = commands.add_parser('init', help='Intialize a glassball configuration and database', parents=[common_args])
-    args.add_argument('--import', dest='import_opml', help='An optional OPML-file to import into the created configuration')
+    args.add_argument('--import', dest='import_opml', default=None, help='An optional OPML-file to import into the created configuration')
     args.set_defaults(command_func=command_init)
 
 
@@ -27,7 +27,7 @@ def command_init(options):
 
             import_file = None
             import_feeds = None
-            if getattr(options, 'import_opml', None):
+            if options.import_opml:
                 import_file = options.import_opml
                 import_feeds = read_opml(options.import_opml)
 
