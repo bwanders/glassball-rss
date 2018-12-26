@@ -4,6 +4,7 @@ import datetime
 import os.path
 import pathlib
 import pkg_resources
+import re
 import sqlite3
 
 from .logging import file_log_handler
@@ -50,6 +51,22 @@ def open_database(db_file):
 
 def db_datetime(value):
     return datetime.datetime(*map(int, value.replace(' ', '-').replace(':','-').split('-')))
+
+
+def slugify(s):
+    s = str(s).lower()
+    s = re.sub('[^a-z0-9-_]+', '-', s)
+    s = s.strip('-')
+    return s
+
+
+def find_free_name(candidate, names):
+    name = candidate
+    i = 1
+    while name in names:
+        i += 1
+        name = "{}--{}".format(candidate, i)
+    return name
 
 
 _units = ['week', 'day', 'hour', 'minute', 'second']

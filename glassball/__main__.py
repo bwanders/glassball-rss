@@ -11,6 +11,7 @@ import glassball.update
 import glassball.build
 import glassball.rawfeed
 import glassball.opmlimport
+import glassball.add
 
 
 command_modules = [
@@ -20,6 +21,7 @@ command_modules = [
     glassball.build,
     glassball.rawfeed,
     glassball.opmlimport,
+    glassball.add,
 ]
 
 
