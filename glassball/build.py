@@ -4,7 +4,7 @@ import pathlib
 
 import jinja2
 
-from .common import copy_resources, Configuration, CommandError, db_datetime
+from .common import copy_resources, Configuration, CommandError, db_datetime, logging_config
 from .logging import log_error, log_message
 
 
@@ -16,7 +16,8 @@ def register_command(commands, common_args):
 
 def command_build(options):
     config = Configuration(options.config)
-    build_site(config, overwrite=options.force)
+    with logging_config(options, config):
+        build_site(config, overwrite=options.force)
 
 
 item_fields = {
@@ -52,7 +53,7 @@ def build_site(config, *, overwrite=False):
         log_message("Using existing build directory '{}'...".format(config.build_path))
     else:
         log_error("Cannot use build directory '{}'".format(config.build_path))
-        raise CommandError("Build aborted due to error")
+        raise CommandError("Build failed")
 
     # Copy static files over
     copy_resources('static', config.build_path / 'static')

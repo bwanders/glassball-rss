@@ -5,7 +5,7 @@ import traceback
 
 import feedparser
 
-from .common import Configuration, db_datetime, GlassballError
+from .common import Configuration, db_datetime, GlassballError, logging_config
 from .logging import log_error, log_message
 
 
@@ -26,12 +26,16 @@ def register_command(commands, common_args):
 
 def command_update(options):
     config = Configuration(options.config)
+    with logging_config(options, config):
+        update(config, force_update=options.force)
 
+
+def update(config, force_update=False):
     conn = config.open_database()
 
     for feed in config.feeds:
         with conn:
-            update_feed(feed, conn, force_update=options.force)
+            update_feed(feed, conn, force_update=force_update)
 
 
 def update_feed(feed, conn, now=None, force_update=False):

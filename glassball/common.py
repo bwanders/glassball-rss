@@ -1,9 +1,12 @@
 import configparser
+import contextlib
 import datetime
 import os.path
 import pathlib
 import pkg_resources
 import sqlite3
+
+from .logging import file_log_handler
 
 
 class GlassballError(Exception):
@@ -14,8 +17,13 @@ class CommandError(GlassballError):
     pass
 
 
+class ConfigurationError(GlassballError):
+    pass
+
+
 _res_manager = pkg_resources.ResourceManager()
 _res_provider = pkg_resources.get_provider(__name__)
+
 
 def get_resource_string(path):
     return _res_provider.get_resource_string(_res_manager, path).decode('utf-8')
@@ -69,6 +77,15 @@ def parse_update_interval(user_input):
     return datetime.timedelta(**arguments)
 
 
+@contextlib.contextmanager
+def logging_config(options, config):
+    if options.want_file_log and config.log_file:
+        with file_log_handler(config.log_file):
+            yield None
+    else:
+        yield None
+
+
 class Feed:
     def __init__(self, key, title, url, update_interval, accept_bozo):
         self.key = key
@@ -83,19 +100,19 @@ class Configuration:
         self.configuration_file = pathlib.Path(ini_file)
 
         if not self.configuration_file.exists():
-            raise GlassballError("Configuration file {!r} does not exists".format(str(self.configuration_file)))
+            raise ConfigurationError("Configuration file {!r} does not exists".format(str(self.configuration_file)))
 
         self._config = configparser.ConfigParser(interpolation=None)
         try:
             self._config.read([str(self.configuration_file)], encoding='utf-8')
         except configparser.Error as e:
-            raise GlassballError(str(e)) from e
+            raise ConfigurationError(str(e)) from e
 
         try:
             self.database_file = self.configuration_file.with_name(self._config.get('global', 'database'))
             self._database_conn = None
         except configparser.NoOptionError as e:
-            raise GlassballError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
+            raise ConfigurationError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
 
         self._feeds = {}
         for section in self._config.sections():
@@ -108,11 +125,11 @@ class Configuration:
                 update_interval = self._config.get(section, 'update interval', fallback='1 hour')
                 accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
             except configparser.Error as e:
-                raise GlassballError("Misconfiguration feed in {!r}: {}".format(str(self.configuration_file), e)) from e
+                raise ConfigurationError("Misconfiguration feed in {!r}: {}".format(str(self.configuration_file), e)) from e
             try:
                 update_interval = parse_update_interval(update_interval)
             except ValueError as e:
-                raise GlassballError("Cannot understand update interval {!r} for feed {!r} in {!r}".format(update_interval, section, str(self.configuration_file)))
+                raise ConfigurationError("Cannot understand update interval {!r} for feed {!r} in {!r}".format(update_interval, section, str(self.configuration_file)))
             self._feeds[key] = Feed(key, title, url, update_interval, accept_bozo)
 
     @classmethod
@@ -128,12 +145,16 @@ class Configuration:
         try:
             return self.configuration_file.with_name(self._config.get('global', 'build path'))
         except configparser.NoOptionError as e:
-            raise GlassballError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
+            raise ConfigurationError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
+
+    @property
+    def log_file(self):
+        return self._config.get('global', 'log file', fallback=None)
 
     def get_feed(self, key):
         return self._feeds.get(key)
 
     def open_database(self):
         if not self.database_file.exists():
-            raise GlassballError("Database file '{}' does not exists".format(str(self.database_file)))
+            raise ConfigurationError("Database file '{}' does not exists".format(str(self.database_file)))
         return open_database(self.database_file)

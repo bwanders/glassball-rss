@@ -12,7 +12,27 @@ class LogEntry:
     def __str__(self):
         return "[{}] {}: {}".format(self.when, self.kind, self.message)
 
-log_handlers = [print]
+log_handlers = []
+
+
+@contextlib.contextmanager
+def file_log_handler(file):
+    with open(file, 'a', encoding='utf-8') as f:
+        def log_to_file(entry):
+            print(entry, file=f)
+        push_log_handler(log_to_file)
+        try:
+            yield None
+        finally:
+            pop_log_handler()
+
+
+def push_log_handler(handler):
+    log_handlers.append(handler)
+
+
+def pop_log_handler():
+    log_handlers.pop()
 
 
 def log_entry(kind, message, when):
