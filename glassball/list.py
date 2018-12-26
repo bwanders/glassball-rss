@@ -1,6 +1,8 @@
 import argparse
 
 from .common import Configuration, db_datetime
+from .logging import log_error, log_message
+
 
 def register_command(commands, common_args):
     args = commands.add_parser('list', help='Lists feed information and feed items', parents=[common_args])

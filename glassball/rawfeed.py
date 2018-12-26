@@ -5,6 +5,7 @@ import textwrap
 import feedparser
 
 from .common import Configuration, CommandError
+from .logging import log_error, log_message
 
 
 def register_command(commands, common_args):

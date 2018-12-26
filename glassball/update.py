@@ -6,6 +6,7 @@ import traceback
 import feedparser
 
 from .common import Configuration, db_datetime, GlassballError
+from .logging import log_error, log_message
 
 
 class UpdateError(GlassballError):
@@ -49,7 +50,7 @@ def update_feed(feed, conn, now=None, force_update=False):
 
     needs_update = force_update or last_update is None or last_update + feed.update_interval < now
     if not needs_update:
-        print("Not updating {feed.key}: update not forced, and last update {last_update} within {feed.update_interval} of {now}".format(
+        log_message("Not updating {feed.key}: update not forced, and last update {last_update} within {feed.update_interval} of {now}".format(
             feed=feed,
             last_update=last_update,
             now=now
@@ -104,7 +105,7 @@ def update_feed(feed, conn, now=None, force_update=False):
         success = True
 
     except UpdateError as e:
-        print(e)
+        log_error("Feed {!r}: {}".format(e.feed.key, e), exception=e)
         success = False
 
     # Write out last update time in last_update table

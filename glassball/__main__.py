@@ -1,6 +1,7 @@
 import argparse
 
 from glassball.common import GlassballError
+from glassball.logging import log_error, log_message
 
 import glassball.init
 import glassball.list
@@ -41,4 +42,5 @@ if __name__ == '__main__':
     try:
         command_func(options)
     except GlassballError as e:
-        args.error(str(e))
+        log_error(str(e), exception=e)
+        args.exit(2)

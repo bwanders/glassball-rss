@@ -5,6 +5,7 @@ import pathlib
 import jinja2
 
 from .common import copy_resources, Configuration, CommandError, db_datetime
+from .logging import log_error, log_message
 
 
 def register_command(commands, common_args):
@@ -45,12 +46,13 @@ def build_site(config, *, overwrite=False):
     env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%S': value.strftime(format)
 
     if not config.build_path.exists():
-        print("Creating build directory '{}'...".format(config.build_path))
+        log_message("Creating build directory '{}'...".format(config.build_path))
         config.build_path.mkdir()
     elif config.build_path.is_dir():
-        print("Using existing build directory '{}'...".format(config.build_path))
+        log_message("Using existing build directory '{}'...".format(config.build_path))
     else:
-        raise CommandError("Cannot use build directory '{}'".format(config.build_path))
+        log_error("Cannot use build directory '{}'".format(config.build_path))
+        raise CommandError("Build aborted due to error")
 
     # Copy static files over
     copy_resources('static', config.build_path / 'static')

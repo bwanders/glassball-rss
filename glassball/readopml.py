@@ -6,6 +6,8 @@ import sys
 
 from xml.etree import ElementTree
 
+from .logging import log_error, log_message
+
 
 def slugify(s):
     s = str(s).lower()
