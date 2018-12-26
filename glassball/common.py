@@ -147,10 +147,6 @@ class Configuration:
         except configparser.NoOptionError as e:
             raise ConfigurationError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
 
-    @property
-    def log_file(self):
-        return self._config.get('global', 'log file', fallback=None)
-
     def get_feed(self, key):
         return self._feeds.get(key)
 

@@ -1,8 +1,9 @@
 import argparse
+import contextlib
 import sys
 
 from glassball.common import GlassballError, ConfigurationError
-from glassball.logging import log_error, log_message, push_log_handler
+from glassball.logging import log_error, log_message, console_log_handler, file_log_handler
 
 import glassball.init
 import glassball.list
@@ -26,8 +27,8 @@ if __name__ == '__main__':
     common_args = argparse.ArgumentParser(add_help=False)
     common_group = common_args.add_argument_group('common arguments')
     common_group.add_argument('-c', '--config', default='feeds.ini', help='The configuration file with which to work')
-    common_group.add_argument('-q', '--quiet', action='store_true', help='Suppress any non-output messages and errors from appearing in the output')
-    common_group.add_argument('-l', '--logging', action='store_true', help='Force logging to file, even if running in an interactive shell')
+    common_group.add_argument('-q', '--quiet', action='store_true', help='Prevent and messages and errors from appearing in the output')
+    common_group.add_argument('-l', '--log', default=None, help='Log all messages and errors to the given file')
 
     args = argparse.ArgumentParser(description='RSS/Atom feed tracker and static viewer')
 
@@ -36,19 +37,20 @@ if __name__ == '__main__':
         mod.register_command(commands, common_args)
 
     options = args.parse_args()
-    options.want_file_log = not sys.stdout.isatty() or options.logging
-    options.want_console_log = sys.stdout.isatty() and not options.quiet
 
     command_func = getattr(options, 'command_func', None)
     if not command_func:
         args.print_help()
         args.exit(2)
 
-    if options.want_console_log:
-        push_log_handler(print)
+    with contextlib.ExitStack() as stack:
+        if not options.quiet:
+            stack.enter_context(console_log_handler())
+        if options.log:
+            stack.enter_context(file_log_handler(options.log))
 
-    try:
-        command_func(options)
-    except GlassballError as e:
-        log_error(str(e), exception=e)
-        args.exit(2)
+        try:
+            command_func(options)
+        except GlassballError as e:
+            log_error(str(e), exception=e)
+            args.exit(2)

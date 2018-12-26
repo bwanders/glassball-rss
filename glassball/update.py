@@ -5,7 +5,7 @@ import traceback
 
 import feedparser
 
-from .common import Configuration, db_datetime, GlassballError, logging_config
+from .common import Configuration, db_datetime, GlassballError
 from .logging import log_error, log_message
 
 
@@ -26,8 +26,7 @@ def register_command(commands, common_args):
 
 def command_update(options):
     config = Configuration(options.config)
-    with logging_config(options, config):
-        update(config, force_update=options.force)
+    update(config, force_update=options.force)
 
 
 def update(config, force_update=False):
@@ -54,11 +53,6 @@ def update_feed(feed, conn, now=None, force_update=False):
 
     needs_update = force_update or last_update is None or last_update + feed.update_interval < now
     if not needs_update:
-        log_message("Not updating {feed.key}: update not forced, and last update {last_update} within {feed.update_interval} of {now}".format(
-            feed=feed,
-            last_update=last_update,
-            now=now
-        ))
         return
 
     try:

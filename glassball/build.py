@@ -4,7 +4,7 @@ import pathlib
 
 import jinja2
 
-from .common import copy_resources, Configuration, CommandError, db_datetime, logging_config
+from .common import copy_resources, Configuration, CommandError, db_datetime
 from .logging import log_error, log_message
 
 
@@ -16,8 +16,7 @@ def register_command(commands, common_args):
 
 def command_build(options):
     config = Configuration(options.config)
-    with logging_config(options, config):
-        build_site(config, overwrite=options.force)
+    build_site(config, overwrite=options.force)
 
 
 item_fields = {

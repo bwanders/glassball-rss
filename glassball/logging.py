@@ -27,6 +27,15 @@ def file_log_handler(file):
             pop_log_handler()
 
 
+@contextlib.contextmanager
+def console_log_handler():
+    push_log_handler(print)
+    try:
+        yield None
+    finally:
+        pop_log_handler()
+
+
 def push_log_handler(handler):
     log_handlers.append(handler)
 

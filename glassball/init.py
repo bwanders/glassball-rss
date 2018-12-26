@@ -24,7 +24,6 @@ def command_init(options):
         with open(ini_file, 'w', encoding='utf-8') as config:
             expected_db_path = pathlib.Path(ini_file.stem + '.db')
             expected_build_path = 'build'
-            expected_log_file = pathlib.Path(ini_file.stem + '.log')
 
             import_file = None
             import_feeds = None
@@ -33,7 +32,7 @@ def command_init(options):
                 import_feeds = read_opml(options.import_opml)
 
             config_template = env.get_template('configuration.ini')
-            config.write(config_template.render(database_file=str(expected_db_path), build_path=str(expected_build_path), log_file=str(expected_log_file), import_file=import_file, import_feeds=import_feeds))
+            config.write(config_template.render(database_file=str(expected_db_path), build_path=str(expected_build_path), import_file=import_file, import_feeds=import_feeds))
     else:
         log_message("Using existing configuration file '{}'...".format(ini_file))
 
