@@ -34,13 +34,16 @@ def update(config, force_update=False):
 
     for feed in config.feeds:
         with conn:
-            update_feed(feed, conn, force_update=force_update)
+            success, new_items = update_feed(feed, conn, force_update=force_update)
+        if success:
+            pass  # TODO: do something smart with new_items for hooks
 
 
 def update_feed(feed, conn, now=None, force_update=False):
     if not now:
         now = datetime.datetime.utcnow()
 
+    new_items = []
     success = False
     c = conn.cursor()
 
@@ -98,6 +101,10 @@ def update_feed(feed, conn, now=None, force_update=False):
                 'content': entry.get('description')
             }
             c.execute("INSERT INTO item(feed, guid, published, link, title, author, content) VALUES (:feed, :guid, datetime(:published, 'unixepoch'), :link, :title, :author, :content)", data)
+            if c.lastrowid:
+                data['id'] = c.lastrowid
+                data['published'] = str(datetime.datetime.fromtimestamp(data['published']))
+                new_items.append(data)
 
         # We were succesful in retrieving and updating the feed
         success = True
@@ -105,6 +112,7 @@ def update_feed(feed, conn, now=None, force_update=False):
     except UpdateError as e:
         log_error("Feed {!r}: {}".format(e.feed.key, e), exception=e)
         success = False
+        new_items = []
 
     # Write out last update time in last_update table
     c.execute("INSERT OR REPLACE INTO last_update(feed, updated, success) VALUES(:feed, datetime(:updated, 'unixepoch'), :success)", {
@@ -112,3 +120,5 @@ def update_feed(feed, conn, now=None, force_update=False):
         'updated': now.replace(tzinfo=datetime.timezone.utc).timestamp(),
         'success': success
     })
+
+    return success, new_items
