@@ -49,7 +49,8 @@ def build_site(config, *, overwrite=False):
         log_message("Creating build directory '{}'...".format(config.build_path))
         config.build_path.mkdir()
     elif config.build_path.is_dir():
-        log_message("Using existing build directory '{}'...".format(config.build_path))
+        # We are fine with using an existing build directory
+        pass
     else:
         log_error("Cannot use build directory '{}'".format(config.build_path))
         raise CommandError("Build failed")
