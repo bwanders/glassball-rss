@@ -5,7 +5,7 @@ import jinja2
 
 from .common import get_resource_string, open_database, Configuration
 from .logging import log_error, log_message
-from .readopml import read_opml
+from .opmlimport import read_opml
 
 
 def register_command(commands, common_args):

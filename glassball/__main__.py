@@ -10,7 +10,7 @@ import glassball.list
 import glassball.update
 import glassball.build
 import glassball.rawfeed
-import glassball.readopml
+import glassball.opmlimport
 
 
 command_modules = [
@@ -19,7 +19,7 @@ command_modules = [
     glassball.update,
     glassball.build,
     glassball.rawfeed,
-    glassball.readopml,
+    glassball.opmlimport,
 ]
 
 
