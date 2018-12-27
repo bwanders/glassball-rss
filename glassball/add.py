@@ -26,12 +26,12 @@ def command_add(options):
             known_urls[feed.url].append(feed)
 
     if options.url in known_urls and not options.force:
-        print("The feed URL {!r} is already configured as {}".format(options.url, ", ".join(repr(feed.key) for feed in known_urls[options.url])))
+        print("The feed URL '{}' is already configured as {}".format(options.url, ", ".join(repr(feed.key) for feed in known_urls[options.url])))
         return
 
     feed = feedparser.parse(options.url)
     if feed.bozo:
-        print("Cannot add feed: the feed at {!r} is unretrievable, malformed, or otherwise not in good shape.".format(options.url))
+        print("Cannot add feed: the feed at '{}' is unretrievable, malformed, or otherwise not in good shape.".format(options.url))
         return
 
     title = feed.feed.title

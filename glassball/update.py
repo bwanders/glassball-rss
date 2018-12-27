@@ -15,7 +15,7 @@ class UpdateError(GlassballError):
         self.feed = feed
 
     def __str__(self):
-        return "Feed {!r}: ".format(self.feed.key) + super().__str__()
+        return "Feed '{}': ".format(self.feed.key) + super().__str__()
 
 
 def register_command(commands, common_args):
@@ -110,7 +110,7 @@ def update_feed(feed, conn, now=None, force_update=False):
         success = True
 
     except UpdateError as e:
-        log_error("Feed {!r}: {}".format(e.feed.key, e), exception=e)
+        log_error("Feed '{}': {}".format(e.feed.key, e), exception=e)
         success = False
         new_items = []
 

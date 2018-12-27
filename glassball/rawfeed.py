@@ -31,9 +31,9 @@ def command_rawfeed(options):
             if feed:
                 options.url = feed.url
             else:
-                raise CommandError("Cannot translate name {!r} to a feed URL with {!r}".format(options.url, options.config))
+                raise CommandError("Cannot translate name '{}' to a feed URL with '{}'".format(options.url, options.config))
         else:
-            raise CommandError("Given url {!r} does not seem to be a retrievable URL".format(options.url))
+            raise CommandError("Given url '{}' does not seem to be a retrievable URL".format(options.url))
 
     # Proceed to retrieve the feed
     feed = feedparser.parse(options.url)

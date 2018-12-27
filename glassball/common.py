@@ -78,18 +78,18 @@ def parse_update_interval(user_input):
 
     parts = user_input.replace(',',' ').split()
     if len(parts) % 2 != 0:
-        raise ValueError("Cannot parse duration {!r}".format(user_input))
+        raise ValueError("Cannot parse duration '{}'".format(user_input))
 
     pairs = iter(parts)
     for amount, unit in zip(pairs, pairs):
         user_unit = unit
         unit = _normalize_units.get(unit, unit)
         if unit not in _plural_units:
-            raise ValueError("Unkown duration unit {!r} in {!r}".format(user_unit, user_input))
+            raise ValueError("Unkown duration unit '{}' in '{}'".format(user_unit, user_input))
         try:
             arguments[unit] = int(amount)
         except ValueError as e:
-            raise ValueError("Cannot convert amount {!r} to a number for the {!r} part of {!r}".format(amount, user_unit, user_input)) from e
+            raise ValueError("Cannot convert amount '{}' to a number for the '{}' part of '{}'".format(amount, user_unit, user_input)) from e
 
     return datetime.timedelta(**arguments)
 
@@ -118,7 +118,7 @@ class Configuration:
         self.configuration_file = pathlib.Path(ini_file)
 
         if not self.configuration_file.exists():
-            raise ConfigurationError("Configuration file {!r} does not exists".format(str(self.configuration_file)))
+            raise ConfigurationError("Configuration file '{}' does not exists".format(str(self.configuration_file)))
 
         self._config = configparser.ConfigParser(interpolation=None)
         try:
@@ -140,11 +140,11 @@ class Configuration:
                 accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
                 inject_style_file = self._config.get(section, 'style file', fallback=None)
             except configparser.Error as e:
-                raise ConfigurationError("Misconfiguration feed in {!r}: {}".format(str(self.configuration_file), e)) from e
+                raise ConfigurationError("Misconfiguration feed in '{}': {}".format(str(self.configuration_file), e)) from e
             try:
                 update_interval = parse_update_interval(update_interval)
             except ValueError as e:
-                raise ConfigurationError("Cannot understand update interval {!r} for feed {!r} in {!r}".format(update_interval, section, str(self.configuration_file)))
+                raise ConfigurationError("Cannot understand update interval '{}' for feed '{}' in '{}'".format(update_interval, section, str(self.configuration_file)))
             self._feeds[key] = Feed(key, title, url, update_interval, accept_bozo, inject_style_file)
 
     @classmethod
@@ -160,14 +160,14 @@ class Configuration:
         try:
             return self.relative_path(self._config.get('global', 'build path'))
         except configparser.NoOptionError as e:
-            raise ConfigurationError("Missing build path in {!r}: {}".format(str(self.configuration_file), e))
+            raise ConfigurationError("Missing build path in '{}': {}".format(str(self.configuration_file), e))
 
     @property
     def database_file(self):
         try:
             return self.relative_path(self._config.get('global', 'database'))
         except configparser.NoOptionError as e:
-            raise ConfigurationError("Configuration {!r} lacks database file entry: {}".format(str(self.configuration_file), e)) from e
+            raise ConfigurationError("Configuration '{}' lacks database file entry: {}".format(str(self.configuration_file), e)) from e
 
     def get_feed(self, key):
         return self._feeds.get(key, None)
