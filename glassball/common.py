@@ -1,11 +1,16 @@
 import configparser
 import contextlib
 import datetime
+import os
 import os.path
 import pathlib
 import pkg_resources
 import re
+import shlex
 import sqlite3
+import subprocess
+import sys
+
 
 from .logging import file_log_handler
 
@@ -69,6 +74,69 @@ def find_free_name(candidate, names):
     return name
 
 
+@contextlib.contextmanager
+def working_directory(newdir):
+    old = os.getcwd()
+    os.chdir(newdir)
+    try:
+        yield old
+    finally:
+        os.chdir(old)
+
+
+class list_hook_var:
+    def __init__(self, iterable, joiner=' '):
+        self.values = [str(e) for e in iterable]
+        self.joiner = joiner
+
+    def __str__(self):
+        return self.joiner.join(self.values)
+
+    def __iter__(self):
+        return iter(self.values)
+
+
+def run_hook(hook_name, working_dir, command_string, replacements, environment):
+    # Set up inherited environment variables by adding given environment to copy
+    # of current environment
+    new_env = dict(os.environ)
+    new_env.update(environment)
+
+    # Build up command by splitting the command string (in a semi-platform-aware
+    # manner), and then replacing any placeholder tokens while keeping the
+    # non-replacement parts.
+    command = []
+    for p in shlex.split(command_string, posix=not sys.platform.startswith('win')):
+        if p.startswith('{') and p.endswith('}'):
+            want_expansion = False
+            key = p[1:-1]
+            if key.startswith('*'):
+                want_expansion = True
+                key = key[1:]
+
+            if not key in replacements:
+                raise GlassballError("{} hook command contains unknown placeholder '{}'".format(hook_name, p))
+            value = replacements[key]
+            if want_expansion and not isinstance(value, list_hook_var):
+                raise GlassballError("{} hook command expands non-expandable placeholder '{}'".format(hook_name, p))
+
+            if want_expansion:
+                command.extend(value)
+            else:
+                command.append(str(value))
+        else:
+            # Part is used verbatim
+            command.append(p)
+
+    try:
+        # Switch the working directory so looking up the hook command works the
+        # way the caller expects
+        with working_directory(working_dir):
+            result = subprocess.run(command, env=new_env)
+    except OSError as e:
+        raise GlassballError("Failed to run {} hook '{}': {}".format(hook_name, command[0], e)) from e
+
+
 _units = ['week', 'day', 'hour', 'minute', 'second']
 _plural_units = [u + 's' for u in _units]
 _normalize_units = {k: v for k, v in zip(_units, _plural_units)}
@@ -111,6 +179,10 @@ class Feed:
         self.update_interval = update_interval
         self.accept_bozo = accept_bozo
         self.inject_style_file = inject_style_file
+
+    @property
+    def section(self):
+        return 'feed:' + self.key
 
 
 class Configuration:
@@ -172,6 +244,16 @@ class Configuration:
     @property
     def on_update(self):
         return self._config.get('global', 'on update', fallback=None)
+
+    def run_hook(self, section, hook, *, replacements={}, environment={}):
+        command_string = self._config.get(section, hook, fallback=None)
+        if not command_string:
+            return
+        if section.startswith('feed:'):
+            name = "'{}' {}".format(section[5:], hook)
+        else:
+            name = "{} {}".format(section, hook)
+        run_hook(name, self.configuration_file.parent, command_string, replacements=replacements, environment=environment)
 
     def get_feed(self, key):
         return self._feeds.get(key, None)
