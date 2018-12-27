@@ -169,6 +169,10 @@ class Configuration:
         except configparser.NoOptionError as e:
             raise ConfigurationError("Configuration '{}' lacks database file entry: {}".format(str(self.configuration_file), e)) from e
 
+    @property
+    def on_update(self):
+        return self._config.get('global', 'on update', fallback=None)
+
     def get_feed(self, key):
         return self._feeds.get(key, None)
 

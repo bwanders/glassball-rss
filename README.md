@@ -9,6 +9,7 @@ Global Configuration
 
 `build path` (path)
 
+`on update` (hook), executed with location of config as working dir
 
 
 Feed Configuration

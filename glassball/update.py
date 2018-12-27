@@ -9,6 +9,13 @@ from .common import Configuration, db_datetime, GlassballError
 from .logging import log_error, log_message
 
 
+import contextlib
+import os
+import shlex
+import subprocess
+import sys
+
+
 class UpdateError(GlassballError):
     def __init__(self, feed, message):
         super().__init__(message)
@@ -29,14 +36,59 @@ def command_update(options):
     update(config, force_update=options.force)
 
 
+def run_hook(config, hook_name, command_string, replacements, environment):
+    @contextlib.contextmanager
+    def working_directory(newdir):
+        old = os.getcwd()
+        os.chdir(newdir)
+        try:
+            yield old
+        finally:
+            os.chdir(old)
+
+    # Set up inherited environment variables by adding given environment to copy
+    # of current environment
+    new_env = dict(os.environ)
+    new_env.update(environment)
+
+    # Set up placeholders by taking replacements and wrapping all keys in `{}`
+    placeholders = {('{' + k + '}'): v for k, v in replacements.items()}
+    command = []
+
+    # Build up command by splitting the command string (in a semi-platform-aware
+    # manner), and then replacing any placeholder tokens while keeping the
+    # non-replacement parts.
+    for p in shlex.split(command_string, posix=not sys.platform.startswith('win')):
+        if p.startswith('{') and p.endswith('}'):
+            try:
+                command.append(str(replacements[p[1:-1]]))
+            except KeyError as e:
+                raise GlassballError("{} hook command '{}' contains unknown placeholder '{}'".format(hook_name, command_string, p))
+        else:
+            # Part is used verbatim
+            command.append(p)
+
+    try:
+        # Switch the working directory so looking up the hook command will be
+        # done relative to the configuration file
+        with working_directory(config.configuration_file.parent):
+            result = subprocess.run(command, env=new_env)
+    except OSError as e:
+        raise GlassballError("Failed to run {} hook '{}': {}".format(hook_name, command[0], e)) from e
+
+
 def update(config, force_update=False):
     conn = config.open_database()
 
+    new_item_count = 0
     for feed in config.feeds:
         with conn:
             success, new_items = update_feed(feed, conn, force_update=force_update)
-        if success:
-            pass  # TODO: do something smart with new_items for hooks
+            if success:
+                new_item_count += len(new_items)
+
+    if config.on_update and new_item_count > 0:
+        run_hook(config, "Global on update", config.on_update, replacements={'count': new_item_count}, environment={})
 
 
 def update_feed(feed, conn, now=None, force_update=False):
@@ -56,7 +108,7 @@ def update_feed(feed, conn, now=None, force_update=False):
 
     needs_update = force_update or last_update is None or last_update + feed.update_interval < now
     if not needs_update:
-        return
+        return True, []
 
     try:
         feed_data = feedparser.parse(feed.url)
