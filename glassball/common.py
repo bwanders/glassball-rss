@@ -132,9 +132,18 @@ def run_hook(hook_name, working_dir, command_string, replacements, environment):
         # Switch the working directory so looking up the hook command works the
         # way the caller expects
         with working_directory(working_dir):
-            result = subprocess.run(command, env=new_env)
+            result = subprocess.run(command, env=new_env, check=True)
+    except subprocess.CalledProcessError as e:
+        # For now, we simply pass on the hook's output directly, since we do the
+        # same when the hook runs successfully
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr, file=sys.stderr)
+        # Raise for failed hook
+        raise GlassballError("Failed to run {} hook: hook returned non-zero exit status {}".format(hook_name, e.returncode)) from e
     except OSError as e:
-        raise GlassballError("Failed to run {} hook '{}': {}".format(hook_name, command[0], e)) from e
+        raise GlassballError("Failed to run {} hook: {}".format(hook_name, e)) from e
 
 
 _units = ['week', 'day', 'hour', 'minute', 'second']
