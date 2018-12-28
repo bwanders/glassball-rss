@@ -1,3 +1,5 @@
+CREATE TABLE database_id (id TEXT NOT NULL);
+
 CREATE TABLE last_update (
     feed TEXT NOT NULL PRIMARY KEY,
     updated TEXT NOT NULL,

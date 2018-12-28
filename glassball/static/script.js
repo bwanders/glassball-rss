@@ -244,7 +244,11 @@ void function() {
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        if(!window.localStorage.getItem('readThreshold')) {
+        // Check for database id, and initialize storage if it's missing or
+        // different from the expected id
+        var currentId = window.localStorage.getItem('databaseId');
+        if(!currentId || currentId != databaseId) {
+            window.localStorage.setItem('databaseId', databaseId);
             initLocalStorage();
         }
 

@@ -1,5 +1,6 @@
 import argparse
 import pathlib
+import uuid
 
 import jinja2
 
@@ -43,5 +44,6 @@ def command_init(options):
         with open_database(config.database_file) as conn:
             schema_source = get_resource_string('schema.sql')
             conn.executescript(schema_source)
+            conn.execute("INSERT INTO database_id VALUES(?)", (str(uuid.uuid4()),))
     else:
         log_message("Using existing feed item database '{}'...".format(config.database_file))
