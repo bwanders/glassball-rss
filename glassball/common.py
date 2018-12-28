@@ -12,9 +12,6 @@ import subprocess
 import sys
 
 
-from .logging import file_log_handler
-
-
 class GlassballError(Exception):
     pass
 
@@ -169,15 +166,6 @@ def parse_update_interval(user_input):
             raise ValueError("Cannot convert amount '{}' to a number for the '{}' part of '{}'".format(amount, user_unit, user_input)) from e
 
     return datetime.timedelta(**arguments)
-
-
-@contextlib.contextmanager
-def logging_config(options, config):
-    if options.want_file_log and config.log_file:
-        with file_log_handler(config.log_file):
-            yield None
-    else:
-        yield None
 
 
 class Feed:

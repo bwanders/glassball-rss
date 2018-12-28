@@ -1,9 +1,9 @@
 import argparse
-import contextlib
+import atexit
 import sys
 
 from glassball.common import GlassballError, ConfigurationError
-from glassball.logging import log_error, log_message, console_log_handler, file_log_handler
+from glassball.logging import log_error, log_message, log_handlers
 
 import glassball.init
 import glassball.list
@@ -45,17 +45,16 @@ if __name__ == '__main__':
         args.print_help()
         args.exit(2)
 
-    # We do this dance with the exit stack to make sure that we close the log
-    # file at the appropriate time. The `console_log_handler` is just here for
-    # symmetry.
-    with contextlib.ExitStack() as stack:
-        if not options.quiet:
-            stack.enter_context(console_log_handler())
-        if options.log:
-            stack.enter_context(file_log_handler(options.log))
+    if not options.quiet:
+        log_handlers.append(print)
 
-        try:
-            command_func(options)
-        except GlassballError as e:
-            log_error(str(e), exception=e)
-            args.exit(2)
+    if options.log:
+        log_file = open(options.log, 'a', encoding='utf')
+        log_handlers.append(lambda e: print(e, file=log_file, buffering=1))
+        atexit.register(log_file.close)
+
+    try:
+        command_func(options)
+    except GlassballError as e:
+        log_error(str(e), exception=e)
+        args.exit(2)
