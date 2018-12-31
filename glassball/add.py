@@ -12,6 +12,7 @@ def register_command(commands, common_args):
     args = commands.add_parser('add', help='Retrieves a feed URL and produces a copy-pastable configuration snippet', parents=[common_args])
     args.add_argument('url', help='The feed URL to retrieve')
     args.add_argument('-f', '--force', action='store_true', help='Force snippet creation even if the URL is already configured')
+    args.add_argument('-w', '--write-config', action='store_true', help='Writes the import feeds directly to the configuration')
     args.set_defaults(command_func=command_add)
 
 
@@ -44,4 +45,12 @@ def command_add(options):
     result[key] = {}
     result[key]['url'] = options.url
     result[key]['title'] = title
-    result.write(sys.stdout)
+
+    if options.write_config:
+        if not Configuration.exists(options.config):
+            raise CommandError("Cannot update configuration '{}' with added feed: configuration does not exist".format(options.config))
+        with open(options.config, 'a', encoding='utf-8') as f:
+            print(file=f)
+            result.write(f)
+    else:
+        result.write(sys.stdout)
