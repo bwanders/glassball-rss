@@ -16,6 +16,11 @@
         </header>
         <main class="panes">
             <div class="pane pane--list pane--filters">
+                {% if not feeds %}
+                    <p class="notification">
+                        There are no feeds.
+                    </p>
+                {% endif %}
                 <a class="selector filter selector--selected" data-filter-type="all">
                     (all feeds)
                 </a>
@@ -42,6 +47,10 @@
                             <button>unread</button>
                         </div>
                     </a>
+                {% else %}
+                    <p class="notification">
+                        There are no feed items in the database.
+                    </p>
                 {% endfor %}
             </div>
             <div class="pane">

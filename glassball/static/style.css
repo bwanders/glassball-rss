@@ -20,6 +20,16 @@ header {
     display: none !important;
 }
 
+/* Notification box */
+
+.notification {
+    margin: 1rem;
+    padding: 1rem;
+    border-radius: .5rem;
+    color: #666;
+    background-color: #eee;
+}
+
 /* Selector "buttons" */
 
 a.selector,
