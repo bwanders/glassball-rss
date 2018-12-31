@@ -34,7 +34,6 @@ header {
 
 a.selector,
 a.selector:visited {
-    display: block;
     padding: 0.5rem;
     cursor: pointer;
     background-color: transparent;
@@ -93,6 +92,36 @@ a.selector.selector--selected {
 }
 
 /* List items */
+.item {
+    display: flex;
+}
+
+.item .read-status {
+    margin-right: 0.5rem;
+    width: 0.75rem;
+}
+
+.item .read-status button {
+    display: inline-block;
+    vertical-align: middle;
+
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 0.75rem;
+
+    border: 1.5px solid #ccc;
+    background-color: transparent;
+
+    cursor: pointer;
+}
+
+.item.item--unread .read-status button {
+    background-color: #ccc;
+}
+
+.item .description {
+    flex-grow: 1;
+}
 
 .item .header {
     display: flex;

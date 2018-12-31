@@ -36,15 +36,19 @@
             <div class="pane pane--list pane--items">
                 {% for item in items %}
                     <a class="selector item" data-item="{{ item.id }}" data-feed="{{ item.feed.key }}">
-                        <div class="header">
-                            <span class="title">{{ item.title }}</span>
-                            <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">
-                                {{ item.published|datetime('%H:%M') }}
-                            </time>
+                        <div class="read-status">
+                            <button></button>
                         </div>
-                        <div class="footer">
-                            <span class="author">{{ item.author }}</span>
-                            <button>unread</button>
+                        <div class="description">
+                            <div class="header">
+                                <span class="title">{{ item.title }}</span>
+                                <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">
+                                    {{ item.published|datetime('%H:%M') }}
+                                </time>
+                            </div>
+                            <div class="footer">
+                                <span class="author">{{ item.author }}</span>
+                            </div>
                         </div>
                     </a>
                 {% else %}

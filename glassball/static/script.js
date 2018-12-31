@@ -71,7 +71,11 @@ void function() {
             el.querySelector('button').addEventListener('click', function(e) {
                 e.stopPropagation();
                 var readInfo = getReadInfo();
-                markAsUnread(readInfo, el.dataset.item);
+                if(isRead(readInfo, el.dataset.item)) {
+                    markAsUnread(readInfo, el.dataset.item);
+                } else {
+                    markAsRead(readInfo, el.dataset.item);
+                }
                 uiReadStatus(readInfo, el.dataset.item);
                 storeReadInfo(readInfo);
             });
