@@ -104,6 +104,7 @@ a.selector.selector--selected {
     display: flex;
     justify-content: space-between;
     white-space: nowrap;
+    font-size: 90%;
 }
 
 .item .footer .author {
