@@ -19,31 +19,25 @@ def command_build(options):
     build_site(config, overwrite=options.force)
 
 
-item_fields = {
-    'id': lambda x: x,
-    'feed': lambda x: x,
-    'guid': lambda x: x,
-    'published': db_datetime,
-    'link': lambda x: x,
-    'title': lambda x: x,
-    'author': lambda x: x,
-    'content': lambda x: x,
-}
-
-
-def item_transform(item_row):
-    result = {}
-    available = item_row.keys()
-    for k, f in item_fields.items():
-        if k in available:
-            result[k] = f(item_row[k])
-    return result
-
-
 def build_site(config, *, overwrite=False):
     env = jinja2.Environment(loader=jinja2.PackageLoader(__name__, 'templates'), autoescape=jinja2.select_autoescape(['html', 'xml']))
 
     env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%S': value.strftime(format)
+
+    item_fields = {
+        'id': lambda x: x,
+        'feed': lambda x: config.get_feed(x),
+        'guid': lambda x: x,
+        'published': db_datetime,
+        'link': lambda x: x,
+        'title': lambda x: x,
+        'author': lambda x: x,
+        'content': lambda x: x,
+    }
+
+    def item_transform(row):
+        available = row.keys()
+        return {k: f(row[k]) for k,f in item_fields.items() if k in available}
 
     if not config.build_path.exists():
         log_message("Creating build directory '{}'...".format(config.build_path))
