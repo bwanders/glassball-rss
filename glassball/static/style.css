@@ -48,7 +48,7 @@ a.selector.selector--selected {
 
 .panes {
     display: flex;
-    height: calc(100vh - 3rem);
+    height: calc(100vh - 3.5rem);
 }
 
 .pane {
