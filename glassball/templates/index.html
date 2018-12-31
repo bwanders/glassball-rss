@@ -35,7 +35,7 @@
             </div>
             <div class="pane pane--list pane--items">
                 {% for item in items %}
-                    <a class="selector item" data-item="{{ item.id }}" data-feed="{{ item.feed.key }}">
+                    <a class="selector item" data-item="{{ item.id }}" data-feed="{{ item.feed.key }}" title="{{ item.title }} in {{ item.feed.title }}">
                         <div class="read-status">
                             <button></button>
                         </div>

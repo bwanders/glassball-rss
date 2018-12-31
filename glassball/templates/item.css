@@ -16,7 +16,8 @@ body {
 /* Glassball header styling */
 
 .glassball-header .author,
-.glassball-header .published {
+.glassball-header .published,
+.glassball-header .feed {
     font-weight: bold;
 }
 
