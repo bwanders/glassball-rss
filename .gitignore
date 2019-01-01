@@ -5,5 +5,4 @@ __pycache__/
 # Ignore default configuration files
 /feeds.db
 /feeds.ini
-/feeds.log
 /build/
