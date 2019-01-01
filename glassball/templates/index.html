@@ -30,7 +30,7 @@
                 <a class="selector filter" data-filter-type="unread">
                     (unread items)
                 </a>
-                {% for feed in feeds %}
+                {% for feed in feeds|sort(attribute='title') %}
                     <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}" {% if last_update[feed] %}title="Last update {{ last_update[feed].updated|datetime }}"{% endif %}>
                         {{ feed.title }}
                     </a>
@@ -47,13 +47,13 @@
                         </div>
                         <div class="description">
                             <div class="header">
-                                <span class="title">{{ item.title }}</span>
+                                <span class="title">{{ item.title or item.guid }}</span>
                                 <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">
                                     {{ item.published|datetime('%H:%M') }}
                                 </time>
                             </div>
                             <div class="footer">
-                                <span class="author">{{ item.author }}</span>
+                                {% if item.author %}<span class="author">{{ item.author }}</span>{% else %}<span class="author author--empty">no author</span>{% endif %}
                             </div>
                         </div>
                     </a>

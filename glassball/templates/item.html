@@ -14,9 +14,9 @@
     </head>
     <body>
         <header class="glassball-header">
-            <h1><a href="{{ item.link }}">{{ item.title }}</a></h1>
+            <h1><a href="{{ item.link }}">{{ item.title or item.guid }}</a></h1>
             <span class="byline">
-                by <span class="author">{{ item.author }}</span>
+                {% if item.author %}by <span class="author">{{ item.author }}</span>{% endif %}
                 at <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">{{ item.published|datetime }}</time>
                 in <span class="feed">{{ item.feed.title }}</span>
             </span>

@@ -175,6 +175,11 @@ a.selector.selector--selected {
     text-overflow: ellipsis;
 }
 
+.item .footer .author.author--empty {
+    color: #ccc;
+    font-style: italic;
+}
+
 
 .item.item--unread .title {
     font-weight: bold;
