@@ -19,10 +19,16 @@ def command_build(options):
     build_site(config, overwrite=options.force)
 
 
+def format_ago(value):
+    delta = datetime.datetime.now() - value
+    return value.strftime('%H:%M') if delta.days == 0 else value.strftime('%Y-%m-%d')
+
+
 def build_site(config, *, overwrite=False):
     env = jinja2.Environment(loader=jinja2.PackageLoader(__name__, 'templates'), autoescape=jinja2.select_autoescape(['html', 'xml']))
 
     env.filters['datetime'] = lambda value, format='%Y-%m-%d %H:%M:%S': value.strftime(format)
+    env.filters['ago'] = format_ago
 
     item_fields = {
         'id': lambda x: x,

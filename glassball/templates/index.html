@@ -49,7 +49,7 @@
                             <div class="header">
                                 <span class="title">{{ item.title or item.guid }}</span>
                                 <time class="published" datetime="{{ item.published|datetime('%Y-%m-%dT%H:%M:%SZ') }}">
-                                    {{ item.published|datetime('%H:%M') }}
+                                    {{ item.published|ago }}
                                 </time>
                             </div>
                             <div class="footer">
