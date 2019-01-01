@@ -67,12 +67,16 @@ def build_site(config, *, overwrite=False):
         with open(config.build_path / 'index.html', 'w', encoding='utf-8') as f:
             f.write(index_template.render(database_id=database_id, feeds=config.feeds, last_update=last_update, items=map(item_transform, items)))
 
+        item_path = config.build_path / 'items'
+        if not item_path.exists():
+            item_path.mkdir()
+
         item_template = env.get_template('item.html')
         items = conn.cursor()
         items.execute('SELECT id, link, feed, title, author, published, content FROM item')
         for item in items:
             feed = config.get_feed(item['feed'])
-            item_file = config.build_path / "{}.html".format(item['id'])
+            item_file = item_path / "{}.html".format(item['id'])
             if item_file.exists() and not overwrite:
                 continue
             injected_styling = None

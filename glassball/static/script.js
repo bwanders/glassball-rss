@@ -61,7 +61,7 @@ void function() {
                 uiSelect(items, el);
 
                 // Navigate item viewer to item page
-                document.querySelector('#item-view').src = el.dataset.item + '.html';
+                document.querySelector('#item-view').src = 'items/' + el.dataset.item + '.html';
 
                 var readInfo = getReadInfo();
                 markAsRead(readInfo, el.dataset.item);
