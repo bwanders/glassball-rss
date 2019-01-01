@@ -49,8 +49,8 @@ if __name__ == '__main__':
         log_handlers.append(print)
 
     if options.log:
-        log_file = open(options.log, 'a', encoding='utf')
-        log_handlers.append(lambda e: print(e, file=log_file, buffering=1))
+        log_file = open(options.log, 'a', encoding='utf', buffering=1)
+        log_handlers.append(lambda e: print(e, file=log_file))
         atexit.register(log_file.close)
 
     try:
