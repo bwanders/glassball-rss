@@ -103,13 +103,22 @@ def update_feed(feed, conn, now=None, force_update=False):
             # Build up the local data about the feed entry. This includes
             # mandatory data such as the feed it belongs to, the entry id, and
             # the moment of publication. Any other fields are optional.
+
+            # Determine fallback author
+            fallback_author = None
+            if 'author_detail' in feed_data.feed and 'name' in feed_data.feed.author_detail:
+                fallback_author = feed_data.feed.author_detail.name
+            elif 'author' in feed_data.feed:
+                fallback_author = feed_data.feed.author
+
+            # Build up data
             data = {
                 'feed': feed.key,
                 'guid': entry.id,
                 'published': calendar.timegm(entry.get(selected_time_key)),
                 'link': entry.get('link'),
                 'title': entry.get('title'),
-                'author': entry.get('author'),
+                'author': entry.get('author', fallback_author),
                 'content': entry.get('description')
             }
             c.execute("INSERT INTO item(feed, guid, published, link, title, author, content) VALUES (:feed, :guid, datetime(:published, 'unixepoch'), :link, :title, :author, :content)", data)
