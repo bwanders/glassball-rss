@@ -64,6 +64,30 @@ a.selector.selector--selected {
     flex-grow: 1;
 }
 
+
+.pane-header {
+    background: #eee;
+    padding: 0.5rem;
+}
+
+.pane-header button {
+    cursor: pointer;
+    border-radius: 2rem;
+    border: 0;
+    padding: 0 0.25rem;
+    background-color: #ddd;
+}
+
+.pane-header button:hover {
+    background-color: #ccc;
+}
+
+.pane-header button:active {
+    color: white;
+    background-color: #416cff;
+}
+
+
 .pane.pane--list {
     display: flex;
     flex-direction: column;

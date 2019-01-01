@@ -68,7 +68,7 @@ void function() {
                 uiReadStatus(readInfo, el.dataset.item);
                 storeReadInfo(readInfo);
             });
-            el.querySelector('button').addEventListener('click', function(e) {
+            el.querySelector('button[value="status"]').addEventListener('click', function(e) {
                 e.stopPropagation();
                 var readInfo = getReadInfo();
                 if(isRead(readInfo, el.dataset.item)) {
@@ -88,6 +88,37 @@ void function() {
 
                 // Filter item list
                 filterTypes[el.dataset.filterType](el.dataset);
+            });
+        });
+
+        document.querySelectorAll('button[value="mark-all"]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                // Determine highest item id
+                var highest = 1;
+                items().forEach(function(el) {
+                    var id = parseInt(el.dataset.item);
+                    if(id > highest) {
+                        highest = id;
+                    }
+                    el.classList.remove('item--unread');
+                });
+                var readInfo = getReadInfo();
+                markAllAsRead(readInfo, highest);
+                storeReadInfo(readInfo);
+            });
+        });
+
+        document.querySelectorAll('button[value="mark-filtered"]').forEach(function(el) {
+            el.addEventListener('click', function() {
+                // Determine highest item id
+                var readInfo = getReadInfo();
+                items().forEach(function(el) {
+                    if(!el.classList.contains('hidden')) {
+                        markAsRead(readInfo, el.dataset.item);
+                        el.classList.remove('item--unread');
+                    }
+                });
+                storeReadInfo(readInfo);
             });
         });
     });
@@ -139,6 +170,7 @@ void function() {
     }
 
     function storeReadInfo(readInfo) {
+        compactReadInfo(readInfo);
         window.localStorage.setItem('readThreshold', readInfo.readThreshold);
         window.localStorage.setItem('readSet', JSON.stringify(Array.from(readInfo.readSet)));
         window.localStorage.setItem('unreadSet', JSON.stringify(Array.from(readInfo.unreadSet)));
@@ -219,14 +251,18 @@ void function() {
         var id = parseInt(id);
         readInfo.readSet.add(id);
         readInfo.unreadSet.delete(id);
-        compactReadInfo(readInfo);
     }
 
     function markAsUnread(readInfo, id) {
         var id = parseInt(id);
         readInfo.readSet.delete(id);
         readInfo.unreadSet.add(id);
-        compactReadInfo(readInfo);
+    }
+
+    function markAllAsRead(readInfo, upto) {
+        readInfo.readSet.clear();
+        readInfo.unreadSet.clear();
+        readInfo.readThreshold = upto + 1;
     }
 
     function isRead(readInfo, id) {

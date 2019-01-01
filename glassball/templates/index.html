@@ -16,6 +16,9 @@
         </header>
         <main class="panes">
             <div class="pane pane--list pane--filters">
+                <div class="pane-header">
+                    <button value="mark-all">Mark all read</button>
+                </div>
                 {% if not feeds %}
                     <p class="notification">
                         There are no feeds.
@@ -24,20 +27,23 @@
                 <a class="selector filter selector--selected" data-filter-type="all">
                     (all feeds)
                 </a>
+                <a class="selector filter" data-filter-type="unread">
+                    (unread items)
+                </a>
                 {% for feed in feeds %}
                     <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}" {% if last_update[feed] %}title="Last update {{ last_update[feed].updated|datetime }}"{% endif %}>
                         {{ feed.title }}
                     </a>
                 {% endfor %}
-                <a class="selector filter" data-filter-type="unread">
-                    (unread items)
-                </a>
             </div>
             <div class="pane pane--list pane--items">
+                <div class="pane-header">
+                    <button value="mark-filtered">Mark all read</button>
+                </div>
                 {% for item in items %}
                     <a class="selector item" data-item="{{ item.id }}" data-feed="{{ item.feed.key }}" title="{{ item.title }} in {{ item.feed.title }}">
                         <div class="read-status">
-                            <button></button>
+                            <button value="status"></button>
                         </div>
                         <div class="description">
                             <div class="header">
