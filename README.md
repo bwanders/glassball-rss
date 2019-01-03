@@ -18,9 +18,9 @@ Global Configuration
 
 `build path` (path)
 
-`on update` (hook)
+`on update` (hook) See the Global `on update` hook section
 
-`on item` (hook)
+`on item` (hook) See the `on item` hooks section
 
 
 Feed Configuration
@@ -34,7 +34,7 @@ Each feed has its own feed section.
     update interval = 1 hour
 
 
-`url` (url)
+`url` (url) *mandatory*
 
 `title` (string)
 
@@ -44,6 +44,66 @@ Each feed has its own feed section.
 
 `style file` (path)
 
-`on update` (hook)
+`on update` (hook) See the per-feed `on update` hook section
 
-`on item` (hook)
+`on item` (hook) See the `on item` hooks section
+
+
+Global `on update` Hook
+-----------------------
+
+Replacements:
+
+  - `feeds`
+  - `feed-titles`
+  - `ids`
+  - `links`
+  - `titles`
+
+Environment:
+
+  - `FEEDS`
+  - `ITEM_IDS`
+
+
+Per Feed `on update` Hook
+-------------------------
+
+Replacements:
+
+  - `feed`
+  - `feed-title`
+  - `ids`
+  - `links`
+  - `titles`
+
+Environment:
+
+  - `FEED`
+  - `FEED_TITLE`
+  - `ITEM_IDS`
+
+
+
+The `on item` Hooks
+-------------------
+
+Replacements:
+
+  - `id`:
+  - `feed`:
+  - `feed-title`:
+  - `published`:
+  - `link`:
+  - `title`:
+  - `author`:
+
+Environment:
+  - `ITEM_ID`
+  - `ITEM_FEED`
+  - `ITEM_FEED_TITLE`
+  - `ITEM_PUBLISHED`
+  - `ITEM_LINK`
+  - `ITEM_TITLE`
+  - `ITEM_AUTHOR`
+  - `ITEM_CONTENT`

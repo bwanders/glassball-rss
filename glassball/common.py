@@ -246,8 +246,8 @@ class Configuration:
             # Get feed information from configuration
             try:
                 key = section[5:]
-                title = self._config.get(section, 'title', fallback=key)
                 url = self._config.get(section, 'url')
+                title = self._config.get(section, 'title', fallback=key)
                 update_interval = self._config.get(section, 'update interval', fallback='1 hour')
                 accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
                 inject_style_file = self._config.get(section, 'style file', fallback=None)
