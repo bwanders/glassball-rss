@@ -32,23 +32,66 @@ def command_update(options):
 def update(config, force_update=False):
     conn = config.open_database()
 
-    new_item_count = 0
+    new_items_info = []
+    updated_feeds = set()
     for feed in config.feeds:
         with conn:
             success, new_items = update_feed(feed, conn, force_update=force_update)
-            if success:
-                new_item_count += len(new_items)
-                if new_items:
-                    config.run_hook(feed.config_section, 'on update', replacements={
-                        'feed': feed.key,
-                        'count': len(new_items),
-                        'ids': list_hook_var(item['id'] for item in new_items)
-                    })
+            if not success:
+                continue
 
-    if new_item_count > 0:
-        config.run_hook('global', 'on update', replacements={
-            'count': new_item_count
-        })
+            # Update aggregation list new items
+            new_items_info.extend({'id': item['id'], 'link': item['link'], 'title': item['title']} for item in new_items)
+            updated_feeds.add(feed)
+
+            # Run per-item hook
+            for item in new_items:
+                replacements = {
+                    'id': item['id'],
+                    'feed': feed.key,
+                    'feed-title': feed.title,
+                    'published': item['published'],
+                    'link': item['link'],
+                    'title': item['title'],
+                    'author': item['author'],
+                }
+                environment = {
+                    'ITEM_ID': str(item['id']),
+                    'ITEM_FEED': feed.key,
+                    'ITEM_FEED_TITLE': feed.title,
+                    'ITEM_PUBLISHED': item['published'],
+                    'ITEM_LINK': item['link'],
+                    'ITEM_TITLE': item['title'],
+                    'ITEM_AUTHOR': item['author'],
+                    'ITEM_CONTENT': item['content'],
+                }
+                config.run_hook(feed.config_section, 'on item', replacements=replacements, environment=environment)
+                config.run_hook('global', 'on item', replacements=replacements, environment=environment)
+
+            # Run per-feed update hook
+            config.run_hook(feed.config_section, 'on update', replacements={
+                'feed': feed.key,
+                'feed-title': feed.title,
+                'ids': list_hook_var(item['id'] for item in new_items),
+                'links': list_hook_var(item['link'] for item in new_items),
+                'titles': list_hook_var(item['title'] for item in new_items),
+            }, environment={
+                'FEED': feed.key,
+                'FEED_TITLE': feed.title,
+                'ITEM_IDS': ' '.join(str(item['id']) for item in new_items)
+            })
+
+    # Run global on-update hook
+    config.run_hook('global', 'on update', replacements={
+        'feeds': list_hook_var(feed.key for feed in updated_feeds),
+        'feed-titles': list_hook_var(feed.title for feed in updated_feeds),
+        'ids': list_hook_var(item['id'] for item in new_items_info),
+        'links': list_hook_var(item['link'] for item in new_items_info),
+        'titles': list_hook_var(item['title'] for item in new_items_info),
+    }, environment={
+        'FEEDS': ' '.join(feed.key for feed in updated_feeds),
+        'ITEM_IDS': ' '.join(str(item['id']) for item in new_items_info)
+    })
 
 
 def update_feed(feed, conn, now=None, force_update=False):
