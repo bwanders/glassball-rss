@@ -181,6 +181,13 @@ void function() {
     and any items listed in `unreadSet` are considered unread.
     */
 
+    /*
+    Note: the read info structure is not turned into a "proper" class because
+    this adds very little value in this case, while it does create a situation
+    where both methods and global functions are needed to interact with the
+    concept.
+    */
+
     // Initializes local storage with a "nothing is read" state
     function initLocalStorage() {
         storeReadInfo({
