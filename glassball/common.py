@@ -25,6 +25,10 @@ class ConfigurationError(GlassballError):
     pass
 
 
+class HookError(GlassballError):
+    pass
+
+
 #
 # Package resource utilities
 #
@@ -133,10 +137,10 @@ def run_hook(hook_name, working_dir, command_string, replacements, environment):
 
             # Do sanity checks on replacement key and expansions
             if not key in replacements:
-                raise GlassballError("{} hook command contains unknown placeholder '{}'".format(hook_name, p))
+                raise HookError("{} hook command contains unknown placeholder '{}'".format(hook_name, p))
             value = replacements[key]
             if want_expansion and not isinstance(value, list_hook_var):
-                raise GlassballError("{} hook command expands non-expandable placeholder '{}'".format(hook_name, p))
+                raise HookError("{} hook command expands non-expandable placeholder '{}'".format(hook_name, p))
 
             # Replace in the manner requested
             if want_expansion:
@@ -160,9 +164,9 @@ def run_hook(hook_name, working_dir, command_string, replacements, environment):
             print(e.stdout)
         if e.stderr:
             print(e.stderr, file=sys.stderr)
-        raise GlassballError("Failed to run {} hook: hook returned non-zero exit status {}".format(hook_name, e.returncode)) from e
+        raise HookError("Failed to run {} hook: hook returned non-zero exit status {}".format(hook_name, e.returncode)) from e
     except OSError as e:
-        raise GlassballError("Failed to run {} hook: {}".format(hook_name, e)) from e
+        raise HookError("Failed to run {} hook: {}".format(hook_name, e)) from e
 
 
 #
