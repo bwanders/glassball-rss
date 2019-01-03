@@ -1,4 +1,3 @@
-import argparse
 import configparser
 import sys
 
@@ -17,35 +16,43 @@ def register_command(commands, common_args):
 
 
 def command_add(options):
+    # Already known feed URLs and names
     known_urls = {}
-    names = set()
+    known_names = set()
+
+    # If we can use the given configuration we update the known URLs and names
     if Configuration.exists(options.config):
         config = Configuration(options.config)
-        names = {feed.key for feed in config.feeds}
+        known_names = {feed.key for feed in config.feeds}
         for feed in config.feeds:
             known_urls.setdefault(feed.url, [])
             known_urls[feed.url].append(feed)
 
+    # Prevent double registrations during normal operations
     if options.url in known_urls and not options.force:
         print("The feed URL '{}' is already configured as {}".format(options.url, ", ".join(repr(feed.key) for feed in known_urls[options.url])))
         return
 
+    # Retrieve feed content
     feed = feedparser.parse(options.url)
     if feed.bozo:
         print("Cannot add feed: the feed at '{}' is unretrievable, malformed, or otherwise not in good shape.".format(options.url))
         return
 
-    title = feed.feed.title
+    # Get necessary information from retrieved feed
+    title = feed.feed.get('title', 'untitled')
 
-    name = find_free_name(slugify(title), names)
-    names.add(name)
+    name = find_free_name(slugify(title), known_names)
+    known_names.add(name)
     key = 'feed:' + name
 
+    # Set up configuration snippet for output
     result = configparser.ConfigParser(interpolation=None)
     result[key] = {}
     result[key]['url'] = options.url
     result[key]['title'] = title
 
+    # Write out snippet to requested target
     if options.write_config:
         if not Configuration.exists(options.config):
             raise CommandError("Cannot update configuration '{}' with added feed: configuration does not exist".format(options.config))

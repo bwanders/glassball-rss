@@ -39,7 +39,7 @@ def update(config, force_update=False):
             if success:
                 new_item_count += len(new_items)
                 if new_items:
-                    config.run_hook(feed.section, 'on update', replacements={
+                    config.run_hook(feed.config_section, 'on update', replacements={
                         'feed': feed.key,
                         'count': len(new_items),
                         'ids': list_hook_var(item['id'] for item in new_items)

@@ -15,11 +15,11 @@ def register_command(commands, common_args):
     args.set_defaults(command_func=command_rawfeed)
 
 
-def indent_pprint(thing, prefix='    '):
-    print(textwrap.indent(pprint.pformat(thing), prefix))
-
-
 def command_rawfeed(options):
+    # Helper to do an indented pretty print
+    def indent_pprint(thing, prefix='    '):
+        print(textwrap.indent(pprint.pformat(thing), prefix))
+
     # This is completely opinionated: anything not starting with `http` is not
     # retrievable...
     if not options.url.startswith('http'):

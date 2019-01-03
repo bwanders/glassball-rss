@@ -1,6 +1,10 @@
 "use strict";
 
 void function() {
+    /*
+    ** Element collections
+    */
+
     function items() {
         return document.querySelectorAll('.selector.item');
     }
@@ -9,53 +13,62 @@ void function() {
         return document.querySelectorAll('.selector.filter');
     }
 
-    var filterTypes = {
+
+    /*
+    ** Filter predicates
+    */
+
+    var filterPredicates = {
         all: function() {
-            items().forEach(function(e) {
-                e.classList.remove('hidden');
-            });
+            return function(e) {
+                return true;
+            };
         },
         feed: function(options) {
             var feed = options.feed;
-            items().forEach(function(e) {
-                if(e.dataset.feed == feed) {
-                    e.classList.remove('hidden');
-                } else {
-                    e.classList.add('hidden');
-                }
-            });
+            return function(e) {
+                return e.dataset.feed == feed;
+            };
         },
         unread: function(options) {
             var readInfo = getReadInfo();
-            items().forEach(function(e) {
-                if(isRead(readInfo, e.dataset.item)) {
-                    e.classList.add('hidden');
-                } else {
-                    e.classList.remove('hidden');
-                }
-            });
+            return function(e) {
+                return isUnread(readInfo, e.dataset.item);
+            };
         }
     };
 
-    function uiSelect(collection, entry) {
+
+    /*
+    ** UI Update functions
+    */
+
+    // Update a "selector collection" to select a new element
+    function uiSelect(collection, newSelected) {
         collection().forEach(function(el) {
             el.classList.remove('selector--selected');
-        })
-        entry.classList.add('selector--selected');
+        });
+        newSelected.classList.add('selector--selected');
     }
 
+    // Update the read/unread status of all `.item` elements for the given item
+    // id
     function uiReadStatus(readInfo, id) {
-        document.querySelectorAll('.selector[data-item="' + id + '"]').forEach(function(el) {
-            if(isRead(readInfo, id)) {
-                el.classList.remove('item--unread');
-            } else {
-                el.classList.add('item--unread');
-            }
-        })
+        var unread = isUnread(readInfo, id);
+        document.querySelectorAll('.item[data-item="' + id + '"]').forEach(function(el) {
+            el.classList.toggle('item--unread', unread);
+        });
     }
+
+
+    /*
+    ** Event handlers
+    */
 
     document.addEventListener('DOMContentLoaded', function() {
+        // Event handlers for item elements
         items().forEach(function(el) {
+            // Clicking on the item element
             el.addEventListener('click', function() {
                 // Update UI for newly selected item
                 uiSelect(items, el);
@@ -63,13 +76,19 @@ void function() {
                 // Navigate item viewer to item page
                 document.querySelector('#item-view').src = 'items/' + el.dataset.item + '.html';
 
+                // Mark the item as read
                 var readInfo = getReadInfo();
                 markAsRead(readInfo, el.dataset.item);
                 uiReadStatus(readInfo, el.dataset.item);
                 storeReadInfo(readInfo);
             });
+
+            // Click on the read/unread status element
             el.querySelector('button[value="status"]').addEventListener('click', function(e) {
+                // Prevent click from actually navigating to the item
                 e.stopPropagation();
+
+                // Mark the item as the inverted status
                 var readInfo = getReadInfo();
                 if(isRead(readInfo, el.dataset.item)) {
                     markAsUnread(readInfo, el.dataset.item);
@@ -81,42 +100,51 @@ void function() {
             });
         });
 
+        // Filters event handlers
         filters().forEach(function(el) {
+            // CLick on a filter
             el.addEventListener('click', function() {
                 // Update UI for newly selected filter
                 uiSelect(filters, el);
 
-                // Filter item list
-                filterTypes[el.dataset.filterType](el.dataset);
+                // Filter item list with the filter type predicate
+                var pred = filterPredicates[el.dataset.filterType](el.dataset);
+                items().forEach(function(e) {
+                    e.classList.toggle('hidden', !pred(e));
+                });
             });
         });
 
+        // Global "Mark all read" button events
         document.querySelectorAll('button[value="mark-all"]').forEach(function(el) {
+            // Click on the mark all read button
             el.addEventListener('click', function() {
-                // Determine highest item id
                 var highest = 1;
+                // Determine highest item id (and update the UI in passing)
                 items().forEach(function(el) {
-                    var id = parseInt(el.dataset.item);
-                    if(id > highest) {
-                        highest = id;
-                    }
+                    highest = Math.max(highest, parseInt(el.dataset.item));
                     el.classList.remove('item--unread');
                 });
+                // Update the read info data
                 var readInfo = getReadInfo();
                 markAllAsRead(readInfo, highest);
                 storeReadInfo(readInfo);
             });
         });
 
+        // Filtered item list "Mark all read" button events
         document.querySelectorAll('button[value="mark-filtered"]').forEach(function(el) {
+            // Click on the button
             el.addEventListener('click', function() {
-                // Determine highest item id
                 var readInfo = getReadInfo();
                 items().forEach(function(el) {
-                    if(!el.classList.contains('hidden')) {
-                        markAsRead(readInfo, el.dataset.item);
-                        el.classList.remove('item--unread');
+                    // Item is filtered, so we ignore it
+                    if(el.classList.contains('hidden')) {
+                        return;
                     }
+                    // Mark the current item as read, and update the UI
+                    markAsRead(readInfo, el.dataset.item);
+                    el.classList.remove('item--unread');
                 });
                 storeReadInfo(readInfo);
             });
@@ -124,9 +152,9 @@ void function() {
     });
 
 
-    //
-    // Unread Handling
-    //
+    /*
+    ** Unread Handling
+    */
 
     /*
     Unread handling is used to keep track of what news item have already been
@@ -153,6 +181,7 @@ void function() {
     and any items listed in `unreadSet` are considered unread.
     */
 
+    // Initializes local storage with a "nothing is read" state
     function initLocalStorage() {
         storeReadInfo({
             readThreshold: 1,
@@ -161,6 +190,7 @@ void function() {
         });
     }
 
+    // Retrieves the current read info from local storage
     function getReadInfo() {
         return {
             readThreshold: parseInt(window.localStorage.getItem('readThreshold')),
@@ -169,6 +199,7 @@ void function() {
         };
     }
 
+    // Store a read info to local storage
     function storeReadInfo(readInfo) {
         compactReadInfo(readInfo);
         window.localStorage.setItem('readThreshold', readInfo.readThreshold);
@@ -176,6 +207,7 @@ void function() {
         window.localStorage.setItem('unreadSet', JSON.stringify(Array.from(readInfo.unreadSet)));
     }
 
+    // Compacts a read info in place
     function compactReadInfo(readInfo) {
         // Clean up read/unread sets by dropping duplicate items, filtering out
         // anything already indicated by the readThreshold, and sorting them
@@ -205,12 +237,14 @@ void function() {
             unreadSet: new Set(readInfo.unreadSet)
         };
 
+        // Stores the working copy to the actual read info
         function storeWorking() {
             readInfo.readThreshold = working.readThreshold;
             readInfo.readSet = new Set(working.readSet);
             readInfo.unreadSet = new Set(working.unreadSet);
         }
 
+        // Moves the read threshold down one place in the working copy
         function down(info) {
             var newT = Math.max(info.readThreshold - 1, 1);
             if(info.readThreshold == newT) return;
@@ -222,6 +256,7 @@ void function() {
             info.readThreshold = newT;
         }
 
+        // Moves the read threshold up one place in the working copy
         function up(info) {
             var newT = info.readThreshold + 1;
             if(info.readSet.has(info.readThreshold)) {
@@ -232,12 +267,17 @@ void function() {
             info.readThreshold = newT;
         }
 
+        // Move down to the lowest threshold of interest
         while(working.readThreshold != low) {
             down(working);
         }
 
+        // Determine current score and store working state to actual
         var best = working.readSet.size + working.unreadSet.size;
         storeWorking();
+
+        // Move up to the highest threshold of interest, and store the most
+        // compact variant so far in the actual read info
         while(working.readThreshold != high) {
             up(working);
             if(working.readSet.size + working.unreadSet.size <= best) {
@@ -247,24 +287,28 @@ void function() {
         }
     }
 
+    // Mutates the read info by marking the id as read
     function markAsRead(readInfo, id) {
         var id = parseInt(id);
         readInfo.readSet.add(id);
         readInfo.unreadSet.delete(id);
     }
 
+    // Mutates the read info by marking the id as unread
     function markAsUnread(readInfo, id) {
         var id = parseInt(id);
         readInfo.readSet.delete(id);
         readInfo.unreadSet.add(id);
     }
 
+    // Mutates the read info by marking everything up to the given id as read
     function markAllAsRead(readInfo, upto) {
         readInfo.readSet.clear();
         readInfo.unreadSet.clear();
         readInfo.readThreshold = upto + 1;
     }
 
+    // Checks if an item is read
     function isRead(readInfo, id) {
         var id = parseInt(id);
         // Check threshold state...
@@ -279,10 +323,12 @@ void function() {
         }
     }
 
+    // Checks if an item is unread
     function isUnread(readInfo, id) {
         return !isRead(readInfo, id);
     }
 
+    // When the document is ready, initialize the storage and update the UI
     document.addEventListener('DOMContentLoaded', function() {
         // Check for database id, and initialize storage if it's missing or
         // different from the expected id
@@ -294,9 +340,7 @@ void function() {
 
         var readInfo = getReadInfo();
         items().forEach(function(el) {
-            if(isUnread(readInfo, el.dataset.item)) {
-                el.classList.add('item--unread');
-            }
+            el.classList.toggle('item--unread', isUnread(readInfo, el.dataset.item));
         });
     });
 

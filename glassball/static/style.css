@@ -1,3 +1,4 @@
+/* Basic overrides */
 * {
     margin: 0;
     padding: 0;
@@ -20,6 +21,7 @@ header {
     display: none !important;
 }
 
+
 /* Notification box */
 
 .notification {
@@ -30,7 +32,8 @@ header {
     background-color: #eee;
 }
 
-/* Selector "buttons" */
+
+/* Selector elements */
 
 a.selector,
 a.selector:visited {
@@ -115,7 +118,9 @@ a.selector.selector--selected {
     width: 100%;
 }
 
+
 /* List items */
+
 .item {
     display: flex;
 }
@@ -159,6 +164,10 @@ a.selector.selector--selected {
     text-overflow: ellipsis;
 }
 
+.item.item--unread .title {
+    font-weight: bold;
+}
+
 .item .header .published {
     margin-left: 0.25rem;
 }
@@ -178,9 +187,4 @@ a.selector.selector--selected {
 .item .footer .author.author--empty {
     color: #ccc;
     font-style: italic;
-}
-
-
-.item.item--unread .title {
-    font-weight: bold;
 }
