@@ -3,7 +3,7 @@ Glassball
 
 Glassball RSS is an RSS/Atom feed tracker built to be used as a cronjob, instead of running as a daemon. Glassball offers a simple configuration format, can run updates when you want them (and invoke script hooks on specific events), and can produce a simple static HTML viewer for the feeds you are tracking.
 
-Glassball RSS requires python 3.5 (or higher).
+Glassball RSS requires python 3.5 (or higher). Feed parsing is handled by the very pragmatic [feedparser](https://pypi.org/project/feedparser/) package.
 
 
 Quick Start
