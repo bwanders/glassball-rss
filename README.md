@@ -13,19 +13,19 @@ Set up a virtual environment of your preferred flavour, and get the glassball pa
 
 Initialize a glassball configuration:
 
-    python -m glassball init
+    python3 -m glassball init
 
 Add feeds by URL or import an OPML file (add `-w` argument to write directly to the configuration file):
 
-    python -m glassball add https://some.feed.url/here
+    python3 -m glassball add https://some.feed.url/here
 
-    python -m glassball import file.opml
+    python3 -m glassball import file.opml
 
 With a few feeds configured run updates and build static viewer:
 
-    python -m glassball update
+    python3 -m glassball update
 
-    python -m glassball build
+    python3 -m glassball build
 
 The update command is intended to be run from a cronjob, and automatically handles update intervals for feeds to prevent hitting each feed every time.
 
@@ -170,3 +170,11 @@ Environment:
   - `ITEM_TITLE` The title of the new item.
   - `ITEM_AUTHOR` The author of the new item.
   - `ITEM_CONTENT` The normalize content of the new item.
+
+
+License
+=======
+
+MIT License, see LICENSE.
+
+Copyright (c) 2018-2018 Brend Wanders
