@@ -5,7 +5,7 @@ import traceback
 
 import feedparser
 
-from .common import Configuration, db_datetime, GlassballError, HookError, list_hook_var
+from .common import Configuration, db_datetime, GlassballError, CommandError, HookError, list_hook_var
 from .logging import log_error, log_message
 
 
@@ -14,29 +14,41 @@ class UpdateError(GlassballError):
         super().__init__(message)
         self.feed = feed
 
-    def __str__(self):
-        return "Feed '{}': ".format(self.feed.key) + super().__str__()
-
 
 def register_command(commands, common_args):
     args = commands.add_parser('update', help='Run the update process for all configured feeds', parents=[common_args])
+    args.add_argument('feeds', nargs='*', default=[], help='A list of feeds to consider, by default all configured feeds are attempted')
     args.add_argument('-f', '--force', action='store_true', help='Force updates regardless of update intervals for the feeds')
     args.set_defaults(command_func=command_update)
 
 
 def command_update(options):
     config = Configuration(options.config)
-    update(config, force_update=options.force)
+
+    # Determine which feeds we will be attempting to update
+    feeds = []
+    # Convert any given feed keys to actual feed references
+    for key in options.feeds:
+        feed = config.get_feed(key)
+        if not feed:
+            raise CommandError("'{}' is not a configured feed".format(key))
+        feeds.append(feed)
+    # If we have no feeds, we will use all of them
+    if not feeds:
+        feeds = config.feeds
+
+    # Update the selected feeds
+    update(config, feeds, force_update=options.force)
 
 
-def update(config, force_update=False):
+def update(config, feeds, force_update=False):
     conn = config.open_database()
 
     # Aggregates for global hooks
     new_items_info = []
     updated_feeds = set()
 
-    for feed in config.feeds:
+    for feed in feeds:
         try:
             with conn:
                 success, new_items = update_feed(feed, conn, force_update=force_update)
@@ -127,7 +139,7 @@ def update_feed(feed, conn, now=None, force_update=False):
 
         # Check for bozo feed data and error out if so
         if feed_data.bozo and not feed.accept_bozo:
-            raise UpdateError(feed, "Feed contains bozo data: {}".format(feed.bozo_exception)) from feed.bozo_exception
+            raise UpdateError(feed, "Error while retrieving or processing feed data: {}".format(feed_data.bozo_exception)) from feed_data.bozo_exception
 
         # Update feed items
         for entry in feed_data.entries:

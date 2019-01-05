@@ -249,7 +249,7 @@ class Configuration:
                 url = self._config.get(section, 'url')
                 title = self._config.get(section, 'title', fallback=key)
                 update_interval = self._config.get(section, 'update interval', fallback='1 hour')
-                accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback='false')
+                accept_bozo = self._config.getboolean(section, 'accept bozo data', fallback=False)
                 inject_style_file = self._config.get(section, 'style file', fallback=None)
             except configparser.Error as e:
                 raise ConfigurationError("Misconfiguration feed in '{}': {}".format(str(self.configuration_file), e)) from e
