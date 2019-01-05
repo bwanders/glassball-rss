@@ -9,7 +9,7 @@ Glassball RSS requires python 3.5 (or higher).
 Quick Start
 -----------
 
-Set up a virtual environment of your preferred flavour, and get the glassball package set up.
+Set up a virtual environment of your preferred flavour, and get the glassball package set up by checking out repo and installing requirements.
 
 Initialize a glassball configuration:
 
