@@ -90,7 +90,7 @@ Each feed has its own feed section.
 
 
 Hooks
------
+=====
 
 All hooks are executed with the configuration location as the working directory. Environment variables are available depending on the event for which the hook is invoked.
 
