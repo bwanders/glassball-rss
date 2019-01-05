@@ -146,7 +146,7 @@ def run_hook(hook_name, working_dir, command_string, replacements, environment):
             if want_expansion:
                 command.extend(value)
             else:
-                command.append(str(value))
+                command.append(str(value) if value is not None else '')
         else:
             # Append the part verbatim
             command.append(p)
