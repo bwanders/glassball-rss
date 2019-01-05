@@ -137,9 +137,25 @@ def update_feed(feed, conn, now=None, force_update=False):
     try:
         feed_data = feedparser.parse(feed.url)
 
+        if 'status' in feed_data:
+            # Check the status field to provide feedback when the HTTP request
+            # goes awry
+            if 300 <= feed_data.status < 400:
+                log_message("Feed '{}': '{}' replied with HTTP status code {}, suggested redirection url: '{}'".format(feed.key, feed.url, feed_data.status, feed_data.href))
+            elif 400 <= feed_data.status < 500:
+                raise UpdateError(feed, "'{}' replied with HTTP status code {}, feed currently not available".format(feed.url, feed_data.status))
+        else:
+            # If we have no status field, the HTTP request has failed, this must
+            # basically mean that there is a `bozo_exception`, but seeing how
+            # this might not always be the case, we handle this specifically
+            if 'bozo_exception' in feed_data:
+                raise UpdateError(feed, "Failed to retrieve feed data from '{}': {}".format(feed.url, feed_data.bozo_exception)) from feed_data.bozo_exception
+            else:
+                raise UpdateError(feed, "Failed to retrieve feed data from '{}' (no further diagnostic information available)".format(feed.url))
+
         # Check for bozo feed data and error out if so
         if feed_data.bozo and not feed.accept_bozo:
-            raise UpdateError(feed, "Error while retrieving or processing feed data: {}".format(feed_data.bozo_exception)) from feed_data.bozo_exception
+            raise UpdateError(feed, "Error while processing feed data from '{}': {}".format(feed.url, feed_data.bozo_exception)) from feed_data.bozo_exception
 
         # Update feed items
         for entry in feed_data.entries:
