@@ -5,8 +5,7 @@ import traceback
 
 import feedparser
 
-from .common import Configuration, db_datetime, GlassballError, CommandError, HookError, list_hook_var
-from .logging import log_error, log_message
+from .common import Configuration, db_datetime, GlassballError, CommandError, HookError, list_hook_var, log_error, log_message
 
 
 class UpdateError(GlassballError):

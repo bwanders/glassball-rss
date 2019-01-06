@@ -5,8 +5,7 @@ import sys
 
 from xml.etree import ElementTree
 
-from .common import Configuration, slugify, find_free_name, CommandError
-from .logging import log_error, log_message
+from .common import Configuration, slugify, find_free_name, CommandError, log_error, log_message
 
 
 def register_command(commands, common_args):

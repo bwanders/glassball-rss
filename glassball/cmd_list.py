@@ -1,7 +1,6 @@
 import argparse
 
-from .common import Configuration, db_datetime
-from .logging import log_error, log_message
+from .common import Configuration, db_datetime, log_error, log_message
 
 
 def register_command(commands, common_args):

@@ -2,8 +2,7 @@ import datetime
 
 import jinja2
 
-from .common import copy_resources, Configuration, GlassballError, db_datetime
-from .logging import log_error, log_message
+from .common import copy_resources, Configuration, GlassballError, db_datetime,  log_error, log_message
 
 
 class BuildError(GlassballError):

@@ -3,8 +3,7 @@ import uuid
 
 import jinja2
 
-from .common import get_resource_string, open_database, Configuration
-from .logging import log_error, log_message
+from .common import get_resource_string, open_database, Configuration, log_error, log_message
 from .cmd_opmlimport import read_opml
 
 

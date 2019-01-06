@@ -2,8 +2,7 @@ import argparse
 import atexit
 import sys
 
-from glassball.common import GlassballError, ConfigurationError
-from glassball.logging import log_error, log_message, log_handlers
+from glassball.common import GlassballError, ConfigurationError, log_error, log_message, log_handlers
 
 import glassball.cmd_init
 import glassball.cmd_list

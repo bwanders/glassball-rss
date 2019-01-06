@@ -3,8 +3,7 @@ import sys
 
 import feedparser
 
-from .common import Configuration, CommandError, slugify, find_free_name
-from .logging import log_error, log_message
+from .common import Configuration, CommandError, slugify, find_free_name, log_error, log_message
 
 
 def register_command(commands, common_args):

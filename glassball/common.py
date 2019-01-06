@@ -12,6 +12,10 @@ import subprocess
 import sys
 
 
+#
+# Errors
+#
+
 # Define errors so we can catch our own problems without difficulty
 class GlassballError(Exception):
     pass
@@ -30,17 +34,54 @@ class HookError(GlassballError):
 
 
 #
+# Logging
+#
+
+class LogEntry:
+    def __init__(self, kind, message, when):
+        self.kind = kind
+        self.message = message
+        self.when = when
+
+    def __str__(self):
+        return "[{}] {}: {}".format(self.when, self.kind, self.message)
+
+
+# The list of callables that receive new LogEntry's to handle them
+log_handlers = []
+
+
+# produce any kind of leg entry
+def log_entry(kind, message, when):
+    entry = LogEntry(kind, message, when)
+    for handler in log_handlers:
+        handler(entry)
+
+
+# Specialized versions of log_entry for the `message` and `error` kind
+def log_message(message):
+    log_entry('message', message, datetime.datetime.now())
+
+
+def log_error(message, exception=None):
+    log_entry('error', message, datetime.datetime.now())
+
+
+#
 # Package resource utilities
 #
 
+# Song and dance to get resources from package
 _res_manager = pkg_resources.ResourceManager()
 _res_provider = pkg_resources.get_provider(__name__)
 
 
+# Gets the contents of a resource as a string
 def get_resource_string(path):
     return _res_provider.get_resource_string(_res_manager, path).decode('utf-8')
 
 
+# Copies resources to the given path
 def copy_resources(resource, target_path):
     if pkg_resources.resource_isdir(__name__, resource):
         for entry in pkg_resources.resource_listdir(__name__, resource):
@@ -64,6 +105,8 @@ def open_database(db_file):
     return conn
 
 
+# Convert database-origin moment in "YYYY-MM-DD HH:MM:SS" format to datetime
+# instances
 def db_datetime(value):
     return datetime.datetime(*map(int, value.replace(' ', '-').replace(':','-').split('-')))
 
@@ -79,10 +122,10 @@ def slugify(s):
     return s
 
 
-def find_free_name(candidate, names):
+def find_free_name(candidate, existing_names):
     name = candidate
     i = 1
-    while name in names:
+    while name in existing_names:
         i += 1
         name = "{}--{}".format(candidate, i)
     return name
