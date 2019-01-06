@@ -110,7 +110,7 @@ def copy_resources(resource, target_path):
                 raise GlassballError("Cannot create target path '{}' for copied resource".format(target_path))
             copy_resources(os.path.join(resource, entry), target_path / entry)
     else:
-        with open(target_path, 'wb') as f:
+        with open(str(target_path), 'wb') as f:
             f.write(pkg_resources.resource_string(__name__, resource))
 
 

@@ -77,7 +77,7 @@ def build_site(config, *, overwrite=False):
         c.execute('SELECT feed, updated, success FROM last_update')
         last_update = {config.get_feed(feed): {'updated': db_datetime(updated), 'success': success} for feed, updated, success in c.fetchall()}
 
-        with open(config.build_path / 'index.html', 'w', encoding='utf-8') as f:
+        with open(str(config.build_path / 'index.html'), 'w', encoding='utf-8') as f:
             f.write(index_template.render(database_id=database_id, feeds=config.feeds, last_update=last_update, items=map(item_transform, items)))
 
         # 2: Ensure availability of `items` directory under build path
@@ -101,5 +101,4 @@ def build_site(config, *, overwrite=False):
             if feed and feed.inject_style_file:
                 injected_styling = config.relative_path(feed.inject_style_file).read_text(encoding='utf-8')
             # Render the actual item
-            with open(item_file, 'w', encoding='utf-8') as f:
-                f.write(item_template.render(feed=feed, item=item, injected_styling=injected_styling))
+            item_file.write_text(item_template.render(feed=feed, item=item, injected_styling=injected_styling), encoding='utf-8')

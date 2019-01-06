@@ -21,7 +21,7 @@ def command_init(options):
         env = jinja2.Environment(loader=jinja2.PackageLoader(__name__, 'templates'))
 
         log_message("Creating template configuration file '{}'...".format(ini_file))
-        with open(ini_file, 'w', encoding='utf-8') as config:
+        with open(str(ini_file), 'w', encoding='utf-8') as config:
             # Determine expected paths
             expected_db_path = pathlib.Path(ini_file.stem + '.db')
             expected_build_path = 'build'
