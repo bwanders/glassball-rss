@@ -5,26 +5,26 @@ import sys
 from glassball.common import GlassballError, ConfigurationError
 from glassball.logging import log_error, log_message, log_handlers
 
-import glassball.init
-import glassball.list
-import glassball.update
-import glassball.build
-import glassball.rawfeed
-import glassball.opmlimport
-import glassball.add
+import glassball.cmd_init
+import glassball.cmd_list
+import glassball.cmd_update
+import glassball.cmd_build
+import glassball.cmd_rawfeed
+import glassball.cmd_opmlimport
+import glassball.cmd_add
 
 
 # An explicit list of modules for which we should register commands. These
 # modules should expose a `register_command(sps, ca)` function that receives a
 # subparsers instance and a common arguments parser.
 command_modules = [
-    glassball.init,
-    glassball.list,
-    glassball.update,
-    glassball.build,
-    glassball.rawfeed,
-    glassball.opmlimport,
-    glassball.add,
+    glassball.cmd_init,
+    glassball.cmd_list,
+    glassball.cmd_update,
+    glassball.cmd_build,
+    glassball.cmd_rawfeed,
+    glassball.cmd_opmlimport,
+    glassball.cmd_add,
 ]
 
 
