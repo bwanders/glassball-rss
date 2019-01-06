@@ -1,3 +1,22 @@
+# This module contains functions, procedures, and types used elsewhere in the
+# program. All these things are here, instead of in a per-topic submodule, to
+# keep the mental overhead of looking things up low.
+#
+# Table of contents:
+#
+# 0. Imports
+# 1. Errors
+# 2. Logging
+# 3. Database utilities
+# 4. Name munging utilities
+# 5. User's hooks utilities
+# 6. Configuration parsing utilities
+#
+
+#
+# 0. Imports
+#
+
 import configparser
 import contextlib
 import datetime
@@ -13,7 +32,7 @@ import sys
 
 
 #
-# Errors
+# 1. Errors
 #
 
 # Define errors so we can catch our own problems without difficulty
@@ -34,7 +53,7 @@ class HookError(GlassballError):
 
 
 #
-# Logging
+# 2. Logging
 #
 
 class LogEntry:
@@ -96,7 +115,7 @@ def copy_resources(resource, target_path):
 
 
 #
-# Database utilities
+# 3. Database utilities
 #
 
 def open_database(db_file):
@@ -112,7 +131,7 @@ def db_datetime(value):
 
 
 #
-# Name munging utilities
+# 4. Name munging utilities
 #
 
 def slugify(s):
@@ -132,7 +151,7 @@ def find_free_name(candidate, existing_names):
 
 
 #
-# User's hooks utilities
+# 5. User's hooks utilities
 #
 
 @contextlib.contextmanager
@@ -213,7 +232,7 @@ def run_hook(hook_name, working_dir, command_string, replacements, environment):
 
 
 #
-# Configuration parsing utilities
+# 6. Configuration parsing utilities
 #
 
 def parse_update_interval(user_input):
