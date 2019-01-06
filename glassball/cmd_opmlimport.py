@@ -1,9 +1,7 @@
 import argparse
 import configparser
-import pathlib
 import sys
-
-from xml.etree import ElementTree
+import xml.etree.ElementTree
 
 from .common import Configuration, slugify, find_free_name, CommandError, log_error, log_message
 
@@ -58,7 +56,7 @@ def read_opml(opml_file, known_names=()):
     result = {}
 
     # Read the OPML file into an XML tree
-    tree = ElementTree.parse(opml_file)
+    tree = xml.etree.ElementTree.parse(opml_file)
     # Get all the outline elements from the tree
     for node in tree.findall('.//outline'):
         # Get the outline's url or skip this node

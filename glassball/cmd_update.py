@@ -1,7 +1,5 @@
-import argparse
 import calendar
 import datetime
-import traceback
 
 import feedparser
 

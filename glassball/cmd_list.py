@@ -1,5 +1,3 @@
-import argparse
-
 from .common import Configuration, db_datetime, log_error, log_message
 
 

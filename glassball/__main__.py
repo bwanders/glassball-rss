@@ -1,29 +1,28 @@
 import argparse
 import atexit
-import sys
 
-from glassball.common import GlassballError, ConfigurationError, log_error, log_message, log_handlers
+from .common import GlassballError, ConfigurationError, log_error, log_message, log_handlers
 
-import glassball.cmd_init
-import glassball.cmd_list
-import glassball.cmd_update
-import glassball.cmd_build
-import glassball.cmd_rawfeed
-import glassball.cmd_opmlimport
-import glassball.cmd_add
+from . import cmd_init
+from . import cmd_list
+from . import cmd_update
+from . import cmd_build
+from . import cmd_rawfeed
+from . import cmd_opmlimport
+from . import cmd_add
 
 
 # An explicit list of modules for which we should register commands. These
 # modules should expose a `register_command(sps, ca)` function that receives a
 # subparsers instance and a common arguments parser.
 command_modules = [
-    glassball.cmd_init,
-    glassball.cmd_list,
-    glassball.cmd_update,
-    glassball.cmd_build,
-    glassball.cmd_rawfeed,
-    glassball.cmd_opmlimport,
-    glassball.cmd_add,
+    cmd_init,
+    cmd_list,
+    cmd_update,
+    cmd_build,
+    cmd_rawfeed,
+    cmd_opmlimport,
+    cmd_add,
 ]
 
 
