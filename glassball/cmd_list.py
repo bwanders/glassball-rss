@@ -19,7 +19,7 @@ def command_list(options):
             row = c.fetchone()
             last_update = db_datetime(row['updated']) if row else None
 
-            print("{} <{}>  (last update {})".format(feed.title, feed.url, last_update or 'unknown'))
+            print("[{}] {} <{}>  (last update {})".format(feed.key, feed.title, feed.url, last_update or 'unknown'))
 
             if options.articles:
                 c.execute("SELECT title, author, published, link FROM item WHERE feed = ? ORDER BY published DESC", (feed.key,))
