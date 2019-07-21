@@ -97,7 +97,7 @@ All hooks are executed with the configuration location as the working directory.
 Addtionally, hook command can contain placeholders arguments of the form `{name}`. Note that the placeholders are not replaced inside strings or other parameters, they are only replaced if they are a distinct parameter. For example:
 
     [global]
-    on update = update-hook.sh "some parameter" {feeds}
+    on update = ./update-hook.sh "some parameter" {feeds}
 
 Will invoke the `update-hook.sh` script with 2 parameters, the first being the verbatim `some parameter` and the second a space-separated list of feed keys.
 
