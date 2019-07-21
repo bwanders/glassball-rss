@@ -157,7 +157,7 @@ def find_free_name(candidate, existing_names):
 @contextlib.contextmanager
 def working_directory(newdir):
     old = os.getcwd()
-    os.chdir(newdir)
+    os.chdir(str(newdir))
     try:
         yield old
     finally:
