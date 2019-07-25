@@ -58,6 +58,35 @@ void function() {
         document.querySelectorAll('.item[data-item="' + id + '"]').forEach(function(el) {
             el.classList.toggle('item--unread', unread);
         });
+        uiUnreadCount();
+    }
+
+    // Update the unread counters of all ui elements asking for them
+    function uiUnreadCount() {
+        var unread = new Set();
+        var unreadFeeds = new Map();
+
+        document.querySelectorAll('.item.item--unread').forEach(function(el) {
+            if(!unread.has(el.dataset.item)) {
+                unread.add(el.dataset.item);
+                var feed = el.dataset.feed;
+                if(!unreadFeeds.has(feed)) {
+                    unreadFeeds.set(feed, 1);
+                } else {
+                    unreadFeeds.set(feed, unreadFeeds.get(feed) + 1);
+                }
+            }
+        });
+        document.querySelectorAll('[data-unread-count]').forEach(function(el) {
+            if(el.dataset.unreadCount == '*') {
+                el.classList.toggle('hidden', unread.size == 0);
+                el.textContent = '' + unread.size;
+            } else {
+                var unreadCount = unreadFeeds.get(el.dataset.unreadCount);
+                el.classList.toggle('hidden', typeof unreadCount == 'undefined');
+                el.textContent = '' + unreadCount;
+            }
+        });
     }
 
 
@@ -129,6 +158,7 @@ void function() {
                 var readInfo = getReadInfo();
                 markAllAsRead(readInfo, highest);
                 storeReadInfo(readInfo);
+                uiUnreadCount();
             });
         });
 
@@ -147,6 +177,7 @@ void function() {
                     el.classList.remove('item--unread');
                 });
                 storeReadInfo(readInfo);
+                uiUnreadCount();
             });
         });
     });
@@ -349,6 +380,7 @@ void function() {
         items().forEach(function(el) {
             el.classList.toggle('item--unread', isUnread(readInfo, el.dataset.item));
         });
+        uiUnreadCount();
     });
 
 }();

@@ -55,6 +55,21 @@ a.selector.selector--selected {
     color: white;
 }
 
+.selector .badge {
+    margin-left: 0.2em;
+    padding: 0 0.4em;
+    font-weight: bold;
+    border-radius: 2em;
+
+    color: white;
+    background-color: #416cff;
+}
+
+.selector.selector--selected .badge {
+    color: #416cff;
+    background-color: white;
+}
+
 
 /* Panes */
 

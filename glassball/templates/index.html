@@ -28,11 +28,11 @@
                     (all feeds)
                 </a>
                 <a class="selector filter" data-filter-type="unread">
-                    (unread items)
+                    (unread items<span class="badge hidden" data-unread-count="*"></span>)
                 </a>
                 {% for feed in feeds|sort(attribute='title') %}
                     <a class="selector filter" data-filter-type="feed" data-feed="{{ feed.key }}" {% if last_update[feed] %}title="Last update {{ last_update[feed].updated|datetime }}"{% endif %}>
-                        {{ feed.title }}
+                        {{ feed.title }}<span class="badge hidden" data-unread-count="{{ feed.key }}"></span>
                     </a>
                 {% endfor %}
             </div>
